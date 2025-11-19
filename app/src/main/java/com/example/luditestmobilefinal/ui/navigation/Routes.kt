@@ -9,7 +9,6 @@ object Routes {
     const val HOME = "home"
     const val DISCLAIMER = "disclaimer"
     const val QUIZ = "quiz"
-    const val QUIZ_TIEBREAKER = "quiz_tiebreaker"
 
     // Results & Games
     const val RESULT = "result/{personalityType}"

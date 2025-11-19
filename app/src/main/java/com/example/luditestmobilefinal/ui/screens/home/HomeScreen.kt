@@ -145,12 +145,12 @@ fun HomeScreen(
                     hasCompletedTest = hasCompletedTest,
                     onTestClick = {
                         if (hasCompletedTest) {
-                            // Si ya completó el test, reiniciar y ir al quiz
+                            // Si ya completó el test, reiniciar y ir al disclaimer
                             viewModel.resetTest()
-                            navController.navigate(Routes.QUIZ)
+                            navController.navigate(Routes.DISCLAIMER)
                         } else {
-                            // Si no ha completado el test, ir al quiz normal
-                            navController.navigate(Routes.QUIZ)
+                            // Si no ha completado el test, ir al disclaimer primero
+                            navController.navigate(Routes.DISCLAIMER)
                         }
                     }
                 )

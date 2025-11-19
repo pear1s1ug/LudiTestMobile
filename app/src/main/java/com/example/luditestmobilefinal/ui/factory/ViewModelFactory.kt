@@ -4,6 +4,7 @@ package com.example.luditestmobilefinal.di
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.luditestmobilefinal.data.repository.*
+import com.example.luditestmobilefinal.ui.screens.gamedetail.GameDetailViewModel
 import com.example.luditestmobilefinal.ui.screens.home.HomeViewModel
 import com.example.luditestmobilefinal.ui.screens.login.LoginViewModel
 import com.example.luditestmobilefinal.ui.screens.profile.ProfileViewModel
@@ -36,6 +37,9 @@ class ViewModelFactory(
         },
         WishlistViewModel::class.java to {
             WishlistViewModel(userRepository, videogameRepository)
+        },
+        GameDetailViewModel::class.java to {
+            GameDetailViewModel(videogameRepository, userRepository)
         }
         // Agregar más ViewModels aquí conforme los vayas creando
     )

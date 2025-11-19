@@ -10,12 +10,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.luditestmobilefinal.di.ViewModelFactory
+import com.example.luditestmobilefinal.ui.navigation.Routes
 import com.example.luditestmobilefinal.ui.screens.recommended.GameCard
 import com.example.luditestmobilefinal.ui.theme.*
 
@@ -237,7 +238,10 @@ fun WishlistScreen(
                         items(uiState.games) { game ->
                             WishlistGameCard(
                                 game = game,
-                                onRemoveClick = { viewModel.removeFromWishlist(game.id) }
+                                onRemoveClick = { viewModel.removeFromWishlist(game.id) },
+                                onViewDetails = {
+                                    navController.navigate(Routes.gameDetail(game.id))
+                                }
                             )
                         }
                     }
@@ -250,7 +254,8 @@ fun WishlistScreen(
 @Composable
 fun WishlistGameCard(
     game: com.example.luditestmobilefinal.data.model.Videogame,
-    onRemoveClick: () -> Unit
+    onRemoveClick: () -> Unit,
+    onViewDetails: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -261,35 +266,76 @@ fun WishlistGameCard(
     ) {
         Column {
             // Reutilizamos el GameCard de RecommendedScreen
-            GameCard(game = game)
+            GameCard(
+                game = game,
+                onViewDetails = onViewDetails
+            )
 
-            // Botón para remover de la wishlist
-            Box(
+            // Fila de botones: Detalles y Remover
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
-                    .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
-                    .background(ErrorRed, RoundedCornerShape(0.dp))
-                    .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
-                    .clickable { onRemoveClick() },
-                contentAlignment = Alignment.Center
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                // Botón de detalles
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp)
+                        .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                        .background(PrimaryPurple, RoundedCornerShape(0.dp))
+                        .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                        .clickable { onViewDetails() },
+                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = "Remover de wishlist",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = "REMOVER DE WISHLIST",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Ver detalles",
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = "VER DETALLES",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White
+                        )
+                    }
+                }
+
+                // Botón para remover de la wishlist
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp)
+                        .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                        .background(ErrorRed, RoundedCornerShape(0.dp))
+                        .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                        .clickable { onRemoveClick() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Remover de wishlist",
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = "REMOVER",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }

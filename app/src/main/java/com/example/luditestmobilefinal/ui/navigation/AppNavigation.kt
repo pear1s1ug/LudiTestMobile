@@ -1,13 +1,13 @@
 package com.example.luditestmobilefinal.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.luditestmobilefinal.di.ViewModelFactory
 import com.example.luditestmobilefinal.ui.screens.about.AboutScreen
+import com.example.luditestmobilefinal.ui.screens.disclaimer.DisclaimerScreen
+import com.example.luditestmobilefinal.ui.screens.gamedetail.GameDetailScreen
 import com.example.luditestmobilefinal.ui.screens.home.HomeScreen
 import com.example.luditestmobilefinal.ui.screens.login.LoginScreen
 import com.example.luditestmobilefinal.ui.screens.profile.ProfileScreen
@@ -65,6 +65,16 @@ fun AppNavigation(
             AboutScreen(navController = navController)
         }
 
+        composable(Routes.DISCLAIMER) {
+            DisclaimerScreen(
+                navController = navController,
+                onAccept = {
+                    // Navegar al quiz después de aceptar
+                    navController.navigate(Routes.QUIZ)
+                }
+            )
+        }
+
         composable(Routes.QUIZ) {
             QuizScreen(
                 navController = navController,
@@ -96,19 +106,27 @@ fun AppNavigation(
                 viewModelFactory = viewModelFactory
             )
         }
+
+        composable(Routes.GAME_DETAIL) { backStackEntry ->
+            val gameId = backStackEntry.arguments?.getString("gameId")?.toIntOrNull()
+            GameDetailScreen(
+                navController = navController,
+                viewModelFactory = viewModelFactory,
+                gameId = gameId
+            )
+        }
     }
 }
 
 // Función helper para determinar start destination
 private fun determineStartDestination(appState: AppState): String {
-    // Por ahora siempre va a LOGIN hasta que tengamos más pantallas
     return Routes.LOGIN
 
     /*
-    // DESCOMENTAR CUANDO TENGAS MÁS PANTALLAS:
+    // DESCOMENTAR CUANDO HAYA MÁS LÓGICA DE ESTADO:
     return when {
         !appState.isUserLoggedIn -> Routes.LOGIN
-        !appState.isTestCompleted -> Routes.QUIZ
+        appState.isUserLoggedIn && !appState.isTestCompleted -> Routes.HOME
         else -> Routes.HOME
     }
     */
