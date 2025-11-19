@@ -4,44 +4,44 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.remember
+import androidx.navigation.compose.rememberNavController
+import com.example.luditestmobilefinal.data.repository.*
+import com.example.luditestmobilefinal.di.ViewModelFactory
+import com.example.luditestmobilefinal.ui.navigation.AppNavigation
+import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.LudiTestMobileFinalTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             LudiTestMobileFinalTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                // Repositorios
+                val userRepository = UserRepository(this)
+                val personalityRepository = PersonalityRepository()
+                val videogameRepository = VideogameRepository()
+
+                // Factory
+                val viewModelFactory = ViewModelFactory(
+                    userRepository = userRepository,
+                    personalityRepository = personalityRepository,
+                    videogameRepository = videogameRepository
+                )
+
+                // Navigation y estado
+                val navController = rememberNavController()
+                val appState = remember { AppState() }
+
+                // App Navigation
+                AppNavigation(
+                    navController = navController,
+                    viewModelFactory = viewModelFactory,
+                    appState = appState
+                )
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    LudiTestMobileFinalTheme {
-        Greeting("Android")
     }
 }

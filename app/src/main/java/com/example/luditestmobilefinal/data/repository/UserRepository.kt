@@ -268,4 +268,40 @@ class UserRepository(private val context: Context) {
             saveRegisteredUsers(registeredUsers)
         }
     }
+
+    // Crear User Invitado
+    suspend fun createGuestUser(): User {
+        val userId = "guest_${System.currentTimeMillis()}"
+        val user = User(
+            id = userId,
+            name = "Invitado",
+            personalityScores = mutableMapOf(),
+            answeredQuestions = mutableListOf(),
+            answerWeights = mutableListOf(),
+            wishlist = mutableListOf()
+        )
+        saveUser(user)
+        context.dataStore.edit {
+            it[isLoggedInKey] = true
+        }
+        return user
+    }
+
+    // Función para resetear test
+    suspend fun resetTest() {
+        val user = getCurrentUser() ?: return
+        val updatedUser = user.copy(
+            personalityScores = emptyMap(),
+            answeredQuestions = emptyList(),
+            answerWeights = emptyList(),
+            personalityType = null
+        )
+        saveUser(updatedUser)
+    }
+
+    // Función para verificar si el test está completo (por usuario)
+    suspend fun isTestComplete(): Boolean {
+        val user = getCurrentUser() ?: return false
+        return user.personalityType != null
+    }
 }
