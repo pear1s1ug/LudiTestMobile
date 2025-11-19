@@ -1,6 +1,13 @@
 package com.example.luditestmobilefinal.ui.screens.login
 
 import android.media.MediaPlayer
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -254,6 +262,31 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         // LINK A REGISTRO
+        var isPulsing by remember { mutableStateOf(false) }
+        val infiniteTransition = rememberInfiniteTransition(label = "pulse_animation")
+
+        // Animación de escala
+        val scale by infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 1.1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(800, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "scale_animation"
+        )
+
+        // Animación de brillo
+        val alpha by infiniteTransition.animateFloat(
+            initialValue = 0.8f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1000, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "alpha_animation"
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -262,18 +295,23 @@ fun LoginScreen(
         ) {
             TextButton(
                 onClick = {
-                    // OPCIONAL: También agregar sonido al link de registro
                     playGameStartSound()
                     navController.navigate("register")
                 },
                 colors = ButtonDefaults.textButtonColors(
-                    contentColor = AccentCyan
-                )
+                    contentColor = DcYellow
+                ),
+                modifier = Modifier
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                    }
+                    .shadow(4.dp, RoundedCornerShape(8.dp), clip = false)
             ) {
                 Text(
                     "¿AÚN NO TE REGISTRAS? ¡HAZLO AQUÍ!",
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Black,
                     letterSpacing = 0.5.sp
                 )
             }

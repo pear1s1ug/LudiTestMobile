@@ -22,12 +22,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -128,11 +130,18 @@ fun ResultScreen(
 
 // Función para reproducir el sonido de resultados
 private fun playResultSound(context: android.content.Context) {
-    val mediaPlayer = android.media.MediaPlayer.create(context, R.raw.appearmagic)
-    mediaPlayer?.setOnCompletionListener {
-        it.release()
+    try {
+        val mediaPlayer = android.media.MediaPlayer.create(context, R.raw.appearmagic)
+        mediaPlayer?.let { player ->
+            player.setOnCompletionListener {
+                it.release()
+            }
+            player.start()
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        android.util.Log.e("SFX", "Error reproduciendo sonido de resultados: ${e.message}")
     }
-    mediaPlayer?.start()
 }
 
 @Composable
@@ -284,7 +293,7 @@ fun SuccessResultSection(
 
                 Box(contentAlignment = Alignment.Center) {
                     Text(
-                        text = "¡DESCUBRISTE TU PERSONALIDAD GAMER!",
+                        text = "Tu tipo de personalidad es:",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Black,
                         color = Color.Black,
@@ -292,7 +301,7 @@ fun SuccessResultSection(
                         modifier = Modifier.offset(x = 2.dp, y = 2.dp)
                     )
                     Text(
-                        text = "¡DESCUBRISTE TU PERSONALIDAD GAMER!",
+                        text = "Tu tipo de personalidad es:",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Black,
                         color = WarningOrange,
@@ -466,13 +475,18 @@ fun RecommendedGamesSection(
             )
         }
 
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        // Cambiar LazyRow por Column para mostrar en vertical
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(games) { game ->
+            games.forEachIndexed { index, game ->
+                // Numeración #1, #2, #3, etc.
+                val rankingNumber = index + 1
+
                 RecommendedGameCard(
                     game = game,
+                    rankingNumber = rankingNumber,
                     isInWishlist = viewModel.isInWishlist(game.id),
                     onWishlistToggle = { viewModel.toggleWishlist(game.id) }
                 )
@@ -484,10 +498,12 @@ fun RecommendedGamesSection(
 @Composable
 fun RecommendedGameCard(
     game: com.example.luditestmobilefinal.data.model.Videogame,
+    rankingNumber: Int,
     isInWishlist: Boolean = false,
     onWishlistToggle: (() -> Unit)? = null
 ) {
     var isPressed by remember { mutableStateOf(false) }
+    var debugClickCount by remember { mutableStateOf(0) }
 
     LaunchedEffect(isPressed) {
         if (isPressed) {
@@ -498,74 +514,127 @@ fun RecommendedGameCard(
 
     Box(
         modifier = Modifier
-            .width(140.dp)
+            .fillMaxWidth()
             .shadow(6.dp, RoundedCornerShape(0.dp), clip = false)
             .background(CardDark, RoundedCornerShape(0.dp))
             .border(2.dp, CardBorder, RoundedCornerShape(0.dp))
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            // Badge de numeración
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                    .background(WarningOrange, RoundedCornerShape(0.dp))
+                    .border(2.dp, Color.Black, RoundedCornerShape(0.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "#$rankingNumber",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.Black
+                )
+            }
+
+            // Imagen del juego
             AsyncImage(
                 model = game.imageUrl,
                 contentDescription = game.name,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
+                    .size(80.dp)
                     .clip(RoundedCornerShape(0.dp)),
                 contentScale = ContentScale.Crop
             )
 
+            // Información del juego
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(8.dp),
+                modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
                     text = game.name,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Black,
                     color = TextPrimary,
                     maxLines = 2,
-                    lineHeight = 14.sp
+                    lineHeight = 18.sp
                 )
 
-                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = "Wishlist: $isInWishlist", // DEBUG
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isInWishlist) ErrorRed else SuccessGreen
+                )
 
-                // Botón de wishlist
-                onWishlistToggle?.let { toggle ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(30.dp)
-                            .shadow(
-                                elevation = if (isPressed) 1.dp else 2.dp,
-                                shape = RoundedCornerShape(0.dp),
-                                clip = false
-                            )
-                            .background(
-                                if (isInWishlist) ErrorRed else SuccessGreen,
-                                shape = RoundedCornerShape(0.dp)
-                            )
-                            .border(
-                                width = if (isPressed) 1.dp else 2.dp,
-                                color = Color.Black,
-                                shape = RoundedCornerShape(0.dp)
-                            )
-                            .clickable {
-                                isPressed = true
-                                toggle()
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Favorite,
-                            contentDescription = if (isInWishlist) "Remover de wishlist" else "Agregar a wishlist",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
+                Text(
+                    text = "Clicks: $debugClickCount", // DEBUG
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = AccentCyan
+                )
+
+                Text(
+                    text = game.description,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = TextPrimary.copy(alpha = 0.8f),
+                    maxLines = 2,
+                    lineHeight = 14.sp,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                // Plataformas
+                Text(
+                    text = "Plataformas: ${game.platform.joinToString { it.displayName }}",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = AccentCyan
+                )
+            }
+
+            // Botón de wishlist con DEBUG
+            onWishlistToggle?.let { toggle ->
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .shadow(
+                            elevation = if (isPressed) 1.dp else 2.dp,
+                            shape = RoundedCornerShape(0.dp),
+                            clip = false
                         )
-                    }
+                        .background(
+                            // ROJO cuando está en wishlist, VERDE cuando no
+                            if (isInWishlist) ErrorRed else SuccessGreen,
+                            shape = RoundedCornerShape(0.dp)
+                        )
+                        .border(
+                            width = if (isPressed) 1.dp else 2.dp,
+                            color = Color.Black,
+                            shape = RoundedCornerShape(0.dp)
+                        )
+                        .clickable {
+                            println("DEBUG: Botón clickeado - isInWishlist antes: $isInWishlist")
+                            isPressed = true
+                            debugClickCount++
+                            toggle()
+                            println("DEBUG: Función toggle llamada")
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = if (isInWishlist) "Remover de wishlist" else "Agregar a wishlist",
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
         }

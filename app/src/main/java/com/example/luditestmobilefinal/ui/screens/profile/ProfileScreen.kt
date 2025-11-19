@@ -501,7 +501,7 @@ fun PersonalityDetailSection(
                     text = "GÉNEROS RECOMENDADOS:",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Black,
-                    color = DcDarkPurple,
+                    color = Color.Black,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
@@ -520,7 +520,7 @@ fun PersonalityDetailSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
-                .background(WarningOrange, RoundedCornerShape(0.dp))
+                .background(SecondaryPurple, RoundedCornerShape(0.dp))
                 .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
                 .padding(16.dp)
         ) {
@@ -532,7 +532,7 @@ fun PersonalityDetailSection(
                     text = "ESTADÍSTICAS DEL TEST:",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Black,
-                    color = Color.Black,
+                    color = Color.White,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 

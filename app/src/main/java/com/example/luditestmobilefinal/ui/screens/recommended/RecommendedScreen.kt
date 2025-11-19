@@ -66,10 +66,6 @@ fun RecommendedScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // EFECTO PARA EL SFX - se ejecuta una vez al entrar a la pantalla
-    LaunchedEffect(Unit) {
-        playScreenEnterSfx(context)
-    }
     Scaffold(
         containerColor = DcDarkPurple,
         contentColor = TextPrimary
@@ -225,6 +221,11 @@ fun RecommendedScreen(
                 }
 
                 else -> {
+                    // EFECTO PARA EL SFX - solo se ejecuta cuando la pantalla está llena con información
+                    LaunchedEffect(Unit) {
+                        playScreenEnterSfx(context)
+                    }
+
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(16.dp),
@@ -314,7 +315,7 @@ fun RecommendedScreen(
     }
 }
 
-// Función placeholder para el SFX - reemplaza con tu implementación real
+// Función placeholder para el SFX
 private fun playScreenEnterSfx(context: android.content.Context) {
     try {
         val mediaPlayer = android.media.MediaPlayer.create(context, R.raw.appearmagic)

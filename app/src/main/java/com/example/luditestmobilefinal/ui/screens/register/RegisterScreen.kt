@@ -1,5 +1,12 @@
 package com.example.luditestmobilefinal.ui.screens.register
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -69,35 +77,6 @@ fun RegisterScreen(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp),
-            contentAlignment = Alignment.TopStart
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .shadow(
-                        elevation = 8.dp,
-                        shape = RoundedCornerShape(0.dp),
-                        clip = false
-                    )
-                    .rotate(-2f)
-                    .background(PrimaryPurple, RoundedCornerShape(0.dp))
-                    .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
-                    .clickable { navController.popBackStack() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Volver",
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
 
         Box(
             modifier = Modifier
@@ -333,6 +312,30 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        val infiniteTransition = rememberInfiniteTransition(label = "pulse_login_animation")
+
+        // Animación de escala
+        val scale by infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 1.08f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(900, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "scale_login_animation"
+        )
+
+        // Animación de brillo
+        val alpha by infiniteTransition.animateFloat(
+            initialValue = 0.7f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1100, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "alpha_login_animation"
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -342,13 +345,19 @@ fun RegisterScreen(
             TextButton(
                 onClick = { navController.navigate("login") },
                 colors = ButtonDefaults.textButtonColors(
-                    contentColor = WarningOrange
-                )
+                    contentColor = DcYellow
+                ),
+                modifier = Modifier
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                    }
+                    .shadow(3.dp, RoundedCornerShape(6.dp), clip = false)
             ) {
                 Text(
                     "¿YA TE REGISTRASTE? INICIA SESIÓN",
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Black,
                     letterSpacing = 0.5.sp
                 )
             }
@@ -395,7 +404,7 @@ fun RegisterScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "• Tu contraseña estará encriptada.",
+                    text = "• Tu contraseña estará encriptada (cuando salga de desarrollo ;)).",
                     fontSize = 10.sp,
                     color = Color.Black,
                     lineHeight = 14.sp,

@@ -150,7 +150,7 @@ fun DisclaimerScreen(
                     Text(
                         text = "EL TEST TOMA APROXIMADAMENTE 5 MINUTOS\nY CONSTA DE 12 PREGUNTAS DE OPCIÓN MÚLTIPLE",
                         fontSize = 14.sp,
-                        color = AccentCyan,
+                        color = Color.Black,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         lineHeight = 18.sp
@@ -161,7 +161,7 @@ fun DisclaimerScreen(
                     Text(
                         text = "➕ 1 PREGUNTA EXTRA EN CASO DE EMPATE",
                         fontSize = 12.sp,
-                        color = DcNeonGreen,
+                        color = Color.Black,
                         fontWeight = FontWeight.Black,
                         textAlign = TextAlign.Center
                     )
@@ -278,7 +278,7 @@ fun DisclaimerScreen(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "🎮 LUDITEST - DESCUBRE TU GAMER PERSONALITY",
+                        text = "LUDITEST - DESCUBRE TU PRÓXIMO JUEGO FAVORITO",
                         fontSize = 12.sp,
                         color = AccentCyan,
                         fontWeight = FontWeight.Black,
@@ -286,7 +286,7 @@ fun DisclaimerScreen(
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
                     Text(
-                        text = "Tu experiencia de gaming personalizada",
+                        text = "Tu personalidad - Tus juegos",
                         fontSize = 10.sp,
                         color = TextSecondary,
                         fontWeight = FontWeight.Medium,
