@@ -24,36 +24,42 @@ private val DarkColorScheme = darkColorScheme(
     surface = CardDark,
     onPrimary = TextPrimary,
     onSecondary = TextPrimary,
-    onTertiary = TextPrimary,
+    onTertiary = DcBlack,
     onBackground = TextPrimary,
     onSurface = TextPrimary,
     surfaceVariant = CardBorder,
     outline = CardBorder,
     primaryContainer = PurpleGradientStart,
-    secondaryContainer = ButtonSecondary
+    secondaryContainer = ButtonSecondary,
+    error = ErrorRed,
+    onError = TextPrimary,
+    surfaceTint = PrimaryPurple
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryPurple,
     secondary = SecondaryPurple,
     tertiary = AccentCyan,
-    background = Color(0xFFF5F5F5),
+    background = Color(0xFFFAFAFA),
     surface = Color(0xFFFFFFFF),
     onPrimary = Color.White,
     onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    surfaceVariant = Color(0xFFE7E0EC),
-    outline = Color(0xFF79747E),
-    primaryContainer = Color(0xFFEADDFF),
-    secondaryContainer = Color(0xFFE8DEF8)
+    onTertiary = DcBlack,
+    onBackground = OnSurfaceLight,
+    onSurface = OnSurfaceLight,
+    surfaceVariant = TertiaryContainerLight,
+    outline = Color(0xFF817D8A),
+    primaryContainer = TertiaryContainerLight,
+    secondaryContainer = Color(0xFFEDE4F7),
+    error = ErrorRed,
+    onError = Color.White,
+    surfaceTint = PrimaryPurple
 )
 
 @Composable
 fun LudiTestMobileFinalTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -65,6 +71,7 @@ fun LudiTestMobileFinalTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {

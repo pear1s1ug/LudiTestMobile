@@ -1,9 +1,9 @@
-// MainActivity.kt
 package com.example.luditestmobilefinal
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -30,9 +30,13 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         setContent {
-            LudiTestMobileFinalTheme {
+            LudiTestMobileFinalTheme(
+                darkTheme = true,           // ← CAMBIO CLAVE: siempre oscuro
+                dynamicColor = false        // ← Tu paleta custom, no Material You
+            ) {
                 val appState = rememberAppState()
                 val navController = rememberNavController()
                 val scope = rememberCoroutineScope()

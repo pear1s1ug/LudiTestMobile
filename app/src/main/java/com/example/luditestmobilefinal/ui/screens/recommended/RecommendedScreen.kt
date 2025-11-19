@@ -9,23 +9,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -34,6 +36,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.luditestmobilefinal.R
+import com.example.luditestmobilefinal.data.model.GameGenre
+import com.example.luditestmobilefinal.data.model.GamePlatform
 import com.example.luditestmobilefinal.ui.factory.ViewModelFactory
 import com.example.luditestmobilefinal.ui.navigation.Routes
 import com.example.luditestmobilefinal.ui.theme.*
@@ -47,10 +51,6 @@ fun RecommendedScreen(
 ) {
     val viewModel: RecommendedViewModel = viewModel(factory = viewModelFactory)
     val uiState by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.loadRecommendations()
-    }
 
     Scaffold(
         containerColor = DcDarkPurple,
@@ -141,6 +141,47 @@ fun RecommendedScreen(
                     }
                 }
 
+                uiState.filteredGames.isEmpty() && (uiState.searchQuery.isNotEmpty() || uiState.selectedGenres.isNotEmpty() || uiState.selectedPlatforms.isNotEmpty()) -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Text(
+                                text = "🔍",
+                                fontSize = 48.sp
+                            )
+                            Text(
+                                text = "No se encontraron juegos\ncon los filtros aplicados",
+                                color = TextPrimary,
+                                textAlign = TextAlign.Center,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.6f)
+                                    .height(40.dp)
+                                    .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                                    .background(AccentCyan, RoundedCornerShape(0.dp))
+                                    .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                                    .clickable { viewModel.clearAllFilters() },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "LIMPIAR FILTROS",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color.Black
+                                )
+                            }
+                        }
+                    }
+                }
+
                 uiState.games.isEmpty() -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -172,8 +213,9 @@ fun RecommendedScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         item {
-                            // Header informativo
-                            Column {
+                            // Header con filtros
+                            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                                // Header informativo
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -196,7 +238,7 @@ fun RecommendedScreen(
                                             fontWeight = FontWeight.Black
                                         )
                                         Text(
-                                            text = "${uiState.games.size} juegos encontrados",
+                                            text = "${uiState.filteredGames.size} de ${uiState.games.size} juegos",
                                             color = TextSecondary,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Medium,
@@ -204,10 +246,31 @@ fun RecommendedScreen(
                                         )
                                     }
                                 }
+
+                                // Barra de búsqueda
+                                SearchBar(
+                                    searchQuery = uiState.searchQuery,
+                                    onSearchQueryChange = viewModel::updateSearchQuery,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+
+                                // Filtros
+                                FiltersSection(
+                                    selectedGenres = uiState.selectedGenres,
+                                    availableGenres = uiState.availableGenres,
+                                    selectedPlatforms = uiState.selectedPlatforms,
+                                    availablePlatforms = uiState.availablePlatforms,
+                                    onGenreToggle = viewModel::toggleGenreFilter,
+                                    onPlatformToggle = viewModel::togglePlatformFilter,
+                                    onClearFilters = viewModel::clearAllFilters,
+                                    hasActiveFilters = uiState.searchQuery.isNotEmpty() ||
+                                            uiState.selectedGenres.isNotEmpty() ||
+                                            uiState.selectedPlatforms.isNotEmpty()
+                                )
                             }
                         }
 
-                        items(uiState.games) { game ->
+                        items(uiState.filteredGames) { game ->
                             GameCard(
                                 game = game,
                                 isInWishlist = viewModel.isInWishlist(game.id),
@@ -217,6 +280,224 @@ fun RecommendedScreen(
                                 }
                             )
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SearchBar(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+
+    Box(
+        modifier = modifier
+            .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+            .background(Color.White, RoundedCornerShape(0.dp))
+            .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+    ) {
+        TextField(
+            value = searchQuery,
+            onValueChange = onSearchQueryChange,
+            placeholder = {
+                Text(
+                    "Buscar juegos...",
+                    color = TextTertiary,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            singleLine = true,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Transparent)
+                .focusRequester(focusRequester),
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                cursorColor = PrimaryPurple
+            ),
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Buscar",
+                    tint = PrimaryPurple
+                )
+            },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "Limpiar búsqueda",
+                        tint = PrimaryPurple,
+                        modifier = Modifier.clickable {
+                            onSearchQueryChange("")
+                            keyboardController?.hide()
+                        }
+                    )
+                }
+            },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(
+                onSearch = { keyboardController?.hide() }
+            )
+        )
+    }
+}
+
+@Composable
+fun FiltersSection(
+    selectedGenres: Set<GameGenre>,
+    availableGenres: List<GameGenre>,
+    selectedPlatforms: Set<GamePlatform>,
+    availablePlatforms: List<GamePlatform>,
+    onGenreToggle: (GameGenre) -> Unit,
+    onPlatformToggle: (GamePlatform) -> Unit,
+    onClearFilters: () -> Unit,
+    hasActiveFilters: Boolean,
+    modifier: Modifier = Modifier
+) {
+    var showGenres by remember { mutableStateOf(false) }
+    var showPlatforms by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Header de filtros
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "FILTROS",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Black,
+                color = WarningOrange
+            )
+
+            if (hasActiveFilters) {
+                Box(
+                    modifier = Modifier
+                        .height(30.dp)
+                        .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                        .background(ErrorRed, RoundedCornerShape(0.dp))
+                        .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                        .clickable { onClearFilters() }
+                        .padding(horizontal = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "LIMPIAR",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White
+                    )
+                }
+            }
+        }
+
+        // Filtro de géneros
+        FilterChipSection(
+            title = "GÉNEROS",
+            items = availableGenres,
+            selectedItems = selectedGenres,
+            isExpanded = showGenres,
+            onToggleExpand = { showGenres = !showGenres },
+            onItemToggle = onGenreToggle,
+            itemDisplayText = { it.name }
+        )
+
+        // Filtro de plataformas
+        FilterChipSection(
+            title = "PLATAFORMAS",
+            items = availablePlatforms,
+            selectedItems = selectedPlatforms,
+            isExpanded = showPlatforms,
+            onToggleExpand = { showPlatforms = !showPlatforms },
+            onItemToggle = onPlatformToggle,
+            itemDisplayText = { it.displayName }
+        )
+    }
+}
+
+@Composable
+fun <T> FilterChipSection(
+    title: String,
+    items: List<T>,
+    selectedItems: Set<T>,
+    isExpanded: Boolean,
+    onToggleExpand: () -> Unit,
+    onItemToggle: (T) -> Unit,
+    itemDisplayText: (T) -> String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Header del filtro
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onToggleExpand() },
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "$title (${selectedItems.size})",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+            Icon(
+                imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                contentDescription = if (isExpanded) "Contraer" else "Expandir",
+                tint = AccentCyan
+            )
+        }
+
+        // Chips de filtro - Versión ultra simple
+        if (isExpanded) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items.forEach { item ->
+                    val isSelected = selectedItems.contains(item)
+
+                    // Chip básico personalizado
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = if (isSelected) SuccessGreen else CardDark,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = if (isSelected) Color.Black else CardBorder,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .clickable { onItemToggle(item) }
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text(
+                            text = itemDisplayText(item),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = if (isSelected) Color.Black else TextPrimary
+                        )
                     }
                 }
             }
@@ -280,6 +561,7 @@ fun GameCard(
                 fontWeight = FontWeight.Medium
             )
 
+            // CORRECCIÓN: Cambiar Mododer por Modifier
             Spacer(modifier = Modifier.height(4.dp))
 
             // Géneros
