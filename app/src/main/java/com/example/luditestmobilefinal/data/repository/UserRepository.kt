@@ -8,7 +8,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.example.luditestmobilefinal.data.model.User
 import com.example.luditestmobilefinal.data.model.RegisteredUser
 import com.example.luditestmobilefinal.data.model.Personality
-//import com.example.luditestmobilefinal.security.SecurityConfig
+import com.example.luditestmobilefinal.security.SecurityConfig
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -22,7 +22,7 @@ class UserRepository(private val context: Context) {
 
     companion object {
         val currentUserKey = stringPreferencesKey("current_user")
-        //val registeredUsersKey = stringPreferencesKey("registered_users")
+        val registeredUsersKey = stringPreferencesKey("registered_users")
         val isLoggedInKey = booleanPreferencesKey("is_logged_in")
     }
 
@@ -44,8 +44,8 @@ class UserRepository(private val context: Context) {
         }
     }
 
-    // CRUD BASICO
-
+    // (USER)
+    // ******** CRUD BASICO ********
     suspend fun getCurrentUser(): User? {
         return currentUser.first()
     }
@@ -61,8 +61,80 @@ class UserRepository(private val context: Context) {
         }
     }
 
-    // LOGIN
-    /*
+    // ******** QUIZ ********
+    // Agregar respuesta del test de personalidad
+    suspend fun addTestAnswer(questionId: Int, personalityWeights: Map<Personality, Int>) {
+        val user = getCurrentUser() ?: return
+        val newScores = user.personalityScores.toMutableMap()
+
+        personalityWeights.forEach { (type, points) ->
+            newScores[type] = (newScores[type] ?: 0) + points
+        }
+
+        val updatedUser = user.copy(
+            personalityScores = newScores,
+            answeredQuestions = user.answeredQuestions + questionId,
+            answerWeights = user.answerWeights + personalityWeights
+        )
+        saveUser(updatedUser)
+    }
+
+    // Completar test de personalidad
+    suspend fun completeTest(finalPersonality: Personality) {
+        val user = getCurrentUser() ?: return
+        val updatedUser = user.copy(
+            personalityType = finalPersonality
+        )
+        saveUser(updatedUser)
+    }
+
+    // ******** CÁLCULO PERSONALIDAD ********
+    // Obtener personalidad principal
+    fun getLeadingPersonality(user: User): Personality? {
+        if (user.personalityScores.isEmpty()) return null
+        val maxScore = user.personalityScores.values.maxOrNull() ?: return null
+        return user.personalityScores.filterValues { it == maxScore }.keys.firstOrNull()
+    }
+
+    // Verificar si hay empate
+    fun hasTie(user: User): Boolean {
+        if (user.personalityScores.isEmpty()) return false
+        val maxScore = user.personalityScores.values.maxOrNull() ?: return false
+        return user.personalityScores.count { it.value == maxScore } > 1
+    }
+
+    // Obtener personalidades empatadas
+    fun getTiedPersonalities(user: User): List<Personality> {
+        if (user.personalityScores.isEmpty()) return emptyList()
+        val maxScore = user.personalityScores.values.maxOrNull() ?: return emptyList()
+        return user.personalityScores.filterValues { it == maxScore }.keys.toList()
+    }
+
+    // ******** WISHLIST ********
+    // Agregar juego a wishlist
+    suspend fun addToWishlist(gameId: Int) {
+        val user = getCurrentUser() ?: return
+        if (!user.wishlist.contains(gameId)) {
+            val updatedUser = user.copy(wishlist = user.wishlist + gameId)
+            saveUser(updatedUser)
+        }
+    }
+
+    // Remover juego de wishlist
+    suspend fun removeFromWishlist(gameId: Int) {
+        val user = getCurrentUser() ?: return
+        val updatedUser = user.copy(wishlist = user.wishlist - gameId)
+        saveUser(updatedUser)
+    }
+
+    // Verificar si juego está en wishlist
+    suspend fun isInWishlist(gameId: Int): Boolean {
+        val user = getCurrentUser() ?: return false
+        return user.wishlist.contains(gameId)
+    }
+
+    //(REGISTERED USER)
+    // ******** LOGIN ********
     // Obtener lista de usuarios registrados
     private suspend fun getRegisteredUsers(): List<RegisteredUser> {
         val json = context.dataStore.data.first()[registeredUsersKey]
@@ -152,62 +224,8 @@ class UserRepository(private val context: Context) {
         }
     }
 
-    // QUIZ
 
-    // Agregar respuesta del test de personalidad
-    suspend fun addTestAnswer(questionId: Int, personalityWeights: Map<Personality, Int>) {
-        val user = getCurrentUser() ?: return
-        val newScores = user.personalityScores.toMutableMap()
-
-        personalityWeights.forEach { (type, points) ->
-            newScores[type] = (newScores[type] ?: 0) + points
-        }
-
-        val updatedUser = user.copy(
-            personalityScores = newScores,
-            answeredQuestions = user.answeredQuestions + questionId,
-            answerWeights = user.answerWeights + personalityWeights
-        )
-        saveUser(updatedUser)
-    }
-
-    // Completar test de personalidad
-    suspend fun completeTest(finalPersonality: Personality) {
-        val user = getCurrentUser() ?: return
-        val updatedUser = user.copy(
-            personalityType = finalPersonality
-        )
-        saveUser(updatedUser)
-    }
-    */
-
-    // WISHLIST
-
-    // Agregar juego a wishlist
-    suspend fun addToWishlist(gameId: Int) {
-        val user = getCurrentUser() ?: return
-        if (!user.wishlist.contains(gameId)) {
-            val updatedUser = user.copy(wishlist = user.wishlist + gameId)
-            saveUser(updatedUser)
-        }
-    }
-
-    // Remover juego de wishlist
-    suspend fun removeFromWishlist(gameId: Int) {
-        val user = getCurrentUser() ?: return
-        val updatedUser = user.copy(wishlist = user.wishlist - gameId)
-        saveUser(updatedUser)
-    }
-
-    // Verificar si juego está en wishlist
-    suspend fun isInWishlist(gameId: Int): Boolean {
-        val user = getCurrentUser() ?: return false
-        return user.wishlist.contains(gameId)
-    }
-
-    // ACCIONES USUARIO
-
-    /*
+    // ******** ACCIONES USUARIO ********
     // Actualizar icono de perfil
     suspend fun updateProfileIcon(icon: String) {
         val user = getCurrentUser() ?: return
@@ -249,29 +267,5 @@ class UserRepository(private val context: Context) {
             registeredUsers[index] = registeredUsers[index].copy(password = hashed)
             saveRegisteredUsers(registeredUsers)
         }
-    }
-     */
-
-    // CÁLCULO PERSONALIDAD
-
-    // Obtener personalidad principal
-    fun getLeadingPersonality(user: User): Personality? {
-        if (user.personalityScores.isEmpty()) return null
-        val maxScore = user.personalityScores.values.maxOrNull() ?: return null
-        return user.personalityScores.filterValues { it == maxScore }.keys.firstOrNull()
-    }
-
-    // Verificar si hay empate
-    fun hasTie(user: User): Boolean {
-        if (user.personalityScores.isEmpty()) return false
-        val maxScore = user.personalityScores.values.maxOrNull() ?: return false
-        return user.personalityScores.count { it.value == maxScore } > 1
-    }
-
-    // Obtener personalidades empatadas
-    fun getTiedPersonalities(user: User): List<Personality> {
-        if (user.personalityScores.isEmpty()) return emptyList()
-        val maxScore = user.personalityScores.values.maxOrNull() ?: return emptyList()
-        return user.personalityScores.filterValues { it == maxScore }.keys.toList()
     }
 }
