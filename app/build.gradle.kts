@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    // Predeterminadas
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -57,4 +58,18 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    //Extras
+    // Navegación
+    implementation(libs.androidx.navigation.compose)
+    // DataStore
+    implementation(libs.androidx.datastore)
+    // Coroutines
+    implementation(libs.kotlinx.coroutines)
+    // Serialización
+    implementation(libs.google.gson)
+    // Seguridad
+    implementation(libs.androidx.security)
+    implementation(libs.favre.bcrypt)
+    // Imágenes
+    implementation(libs.coil.compose)
 }
