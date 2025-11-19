@@ -1,7 +1,9 @@
 package com.example.luditestmobilefinal.ui.state
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 class AppState {
@@ -11,6 +13,9 @@ class AppState {
     var currentPersonality by mutableStateOf<String?>(null)
     var isDrawerOpen by mutableStateOf(false)
     var isLoading by mutableStateOf(false)
+
+    // estado de navegación
+    val navigationState = NavigationState()
 
     // Estado con sealed class para estado global
     var globalState: GlobalState by mutableStateOf(GlobalState.Loading)
@@ -27,6 +32,12 @@ class AppState {
             else -> GlobalState.AuthenticatedWithResult(user.personalityType!!)
         }
     }
+}
+
+// Helper para recordar el AppState
+@Composable
+fun rememberAppState(): AppState {
+    return remember { AppState() }
 }
 
 // Sealed class para estado global

@@ -36,7 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.luditestmobilefinal.data.model.Personality
-import com.example.luditestmobilefinal.di.ViewModelFactory
+import com.example.luditestmobilefinal.ui.factory.ViewModelFactory
 import com.example.luditestmobilefinal.ui.navigation.Routes
 import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.*
@@ -67,45 +67,7 @@ fun ResultScreen(
 
     Scaffold(
         containerColor = DcDarkPurple,
-        contentColor = TextPrimary,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "TUS RESULTADOS",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White
-                    )
-                },
-                navigationIcon = {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .shadow(
-                                elevation = 6.dp,
-                                shape = RoundedCornerShape(0.dp),
-                                clip = false
-                            )
-                            .background(WarningOrange, RoundedCornerShape(0.dp))
-                            .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
-                            .clickable { navController.popBackStack() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = Color.Black,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = DcDarkPurple,
-                    titleContentColor = Color.White
-                )
-            )
-        }
+        contentColor = TextPrimary
     ) { paddingValues ->
         Column(
             modifier = Modifier

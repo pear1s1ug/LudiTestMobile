@@ -1,5 +1,4 @@
-// di/ViewModelFactory.kt
-package com.example.luditestmobilefinal.di
+package com.example.luditestmobilefinal.ui.factory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -32,10 +31,7 @@ class ViewModelFactory(
             ResultViewModel(personalityRepository, videogameRepository, userRepository)
         },
         RecommendedViewModel::class.java to {
-            RecommendedViewModel(
-                userRepository,
-                videogameRepository
-            )
+            RecommendedViewModel(userRepository, videogameRepository)
         },
         WishlistViewModel::class.java to {
             WishlistViewModel(userRepository, videogameRepository)
@@ -43,7 +39,6 @@ class ViewModelFactory(
         GameDetailViewModel::class.java to {
             GameDetailViewModel(videogameRepository, userRepository)
         }
-        // Agregar más ViewModels aquí conforme los vayas creando
     )
 
     @Suppress("UNCHECKED_CAST")

@@ -10,7 +10,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.luditestmobilefinal.di.ViewModelFactory
+import com.example.luditestmobilefinal.ui.factory.ViewModelFactory
 import com.example.luditestmobilefinal.ui.screens.register.ComicTextField
 import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.*
@@ -63,35 +64,7 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp),
-            contentAlignment = Alignment.TopStart
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .shadow(
-                        elevation = 8.dp,
-                        shape = RoundedCornerShape(0.dp),
-                        clip = false
-                    )
-                    .rotate(-2f)
-                    .background(PrimaryPurple, RoundedCornerShape(0.dp))
-                    .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
-                    .clickable { navController.popBackStack() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Volver",
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-
+        // LOGO Y TÍTULO
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -146,6 +119,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // FORMULARIO
         ComicTextField(
             value = viewModel.email,
             onValueChange = viewModel::updateEmail,
@@ -169,31 +143,9 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-                .rotate(0.5f),
-            contentAlignment = Alignment.CenterEnd
-        ) {
-            TextButton(
-                onClick = {  },
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = AccentCyan
-                )
-            ) {
-                Text(
-                    "¿OLVIDASTE TU CONTRASEÑA?",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
+        // BOTÓN ACCEDER
         val isFormValid = ValidationUtils.isLoginFormValid(
             email = viewModel.email,
             password = viewModel.password,
@@ -235,6 +187,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // SEPARADOR
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -268,6 +221,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // BOTÓN INVITADO
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -297,6 +251,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // LINK A REGISTRO
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -318,6 +273,7 @@ fun LoginScreen(
             }
         }
 
+        // MENSAJE DE ERROR
         loginState.error?.let { error ->
             Spacer(modifier = Modifier.height(20.dp))
             Box(
@@ -340,7 +296,6 @@ fun LoginScreen(
         }
 
         Spacer(modifier = Modifier.height(20.dp))
-
     }
 
     LaunchedEffect(loginState.isSuccess) {

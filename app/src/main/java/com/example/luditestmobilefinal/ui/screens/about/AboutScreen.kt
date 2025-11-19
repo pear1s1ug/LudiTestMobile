@@ -33,45 +33,7 @@ fun AboutScreen(
 ) {
     Scaffold(
         containerColor = DcDarkPurple,
-        contentColor = TextPrimary,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "SOBRE LUDITEST",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White
-                    )
-                },
-                navigationIcon = {
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .shadow(
-                                elevation = 6.dp,
-                                shape = RoundedCornerShape(0.dp),
-                                clip = false
-                            )
-                            .background(WarningOrange, RoundedCornerShape(0.dp))
-                            .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
-                            .clickable { navController.popBackStack() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = Color.Black,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = DcDarkPurple,
-                    titleContentColor = Color.White
-                )
-            )
-        }
+        contentColor = TextPrimary
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -162,7 +124,7 @@ fun AboutScreen(
             // Database Info Card
             InfoCard(
                 title = "NUESTRA BASE DE DATOS",
-                content = "Nuestra selección incluye videojuegos que tuvieron lanzamientos o relanzamientos durante 2025 o movidos a 2026, ya sea en formato físico, digital o como ports para nuevas plataformas. No todos son necesariamente juegos completamente nuevos, pero cada uno tuvo una publicación oficial este año.\n\nEncontrarás desde grandes producciones AAA hasta títulos indie, abarcando múltiples plataformas y géneros. Perfectamente filtrables para que encuentres exactamente lo que se adapta a tu estilo de juego.",
+                content = "Nuestra selección incluye videojuegos que tuvieron lanzamientos o relanzamientos durante 2024, 2025 o movidos a 2026, ya sea en formato físico, digital o como ports para nuevas plataformas. No todos son necesariamente juegos completamente nuevos, pero cada uno tuvo una publicación oficial recientemente.\n\nEncontrarás desde grandes producciones AAA hasta títulos indie, abarcando múltiples plataformas y géneros. Perfectamente filtrables para que encuentres exactamente lo que se adapta a tu estilo de juego.",
                 backgroundColor = WarningOrange,
                 textColor = Color.Black
             )

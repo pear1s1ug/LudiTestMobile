@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.luditestmobilefinal.di.ViewModelFactory
+import com.example.luditestmobilefinal.ui.factory.ViewModelFactory
 import com.example.luditestmobilefinal.ui.screens.about.AboutScreen
 import com.example.luditestmobilefinal.ui.screens.disclaimer.DisclaimerScreen
 import com.example.luditestmobilefinal.ui.screens.gamedetail.GameDetailScreen

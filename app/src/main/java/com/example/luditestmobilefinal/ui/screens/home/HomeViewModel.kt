@@ -37,14 +37,6 @@ class HomeViewModel(
         }
     }
 
-
-    fun logout() {
-        viewModelScope.launch {
-            userRepository.logout()
-            _homeState.value = HomeState(user = null, isLoading = false)
-        }
-    }
-
     fun resetTest() {
         viewModelScope.launch {
             userRepository.resetTest()
