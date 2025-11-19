@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.luditestmobilefinal.di.ViewModelFactory
+import com.example.luditestmobilefinal.ui.screens.home.HomeScreen
 import com.example.luditestmobilefinal.ui.screens.login.LoginScreen
 import com.example.luditestmobilefinal.ui.screens.register.RegisterScreen
 import com.example.luditestmobilefinal.ui.state.AppState
@@ -36,7 +37,7 @@ fun AppNavigation(
             )
         }
 
-        /*
+        // Agregar en AppNavigation.kt dentro del NavHost
         composable(Routes.HOME) {
             HomeScreen(
                 navController = navController,
@@ -44,6 +45,9 @@ fun AppNavigation(
                 appState = appState
             )
         }
+
+        /*
+
 
         composable(Routes.DISCLAIMER) {
             DisclaimerScreen(

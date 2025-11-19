@@ -4,6 +4,7 @@ package com.example.luditestmobilefinal.di
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.luditestmobilefinal.data.repository.*
+import com.example.luditestmobilefinal.ui.screens.home.HomeViewModel
 import com.example.luditestmobilefinal.ui.screens.login.LoginViewModel
 import com.example.luditestmobilefinal.ui.screens.register.RegisterViewModel
 
@@ -15,11 +16,9 @@ class ViewModelFactory(
 
     private val creators = mapOf<Class<out ViewModel>, () -> ViewModel>(
         LoginViewModel::class.java to { LoginViewModel(userRepository) },
-        RegisterViewModel::class.java to { RegisterViewModel(userRepository) }
-        // Agregar más ViewModels aquí conforme los vayas creando:
-        // HomeViewModel::class.java to { HomeViewModel(userRepository, videogameRepository) },
-        // QuizViewModel::class.java to { QuizViewModel(userRepository, personalityRepository) },
-        // etc...
+        RegisterViewModel::class.java to { RegisterViewModel(userRepository) },
+        HomeViewModel::class.java to { HomeViewModel(userRepository) }
+        // Agregar más ViewModels aquí conforme los vayas creando
     )
 
     @Suppress("UNCHECKED_CAST")

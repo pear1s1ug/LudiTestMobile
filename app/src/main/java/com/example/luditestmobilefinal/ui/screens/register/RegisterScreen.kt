@@ -35,6 +35,7 @@ import com.example.luditestmobilefinal.R
 import com.example.luditestmobilefinal.di.ViewModelFactory
 import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.*
+import com.example.luditestmobilefinal.utils.ValidationUtils
 
 val animalIcons = listOf(
     "fox" to R.drawable.fox,
@@ -287,11 +288,17 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        val isFormValid = viewModel.nameError == null &&
-                viewModel.emailError == null &&
-                viewModel.passwordError == null &&
-                viewModel.confirmPasswordError == null &&
-                viewModel.selectedProfileIcon != null
+        val isFormValid = ValidationUtils.isRegisterFormValid(
+            name = viewModel.name,
+            email = viewModel.email,
+            password = viewModel.password,
+            confirmPassword = viewModel.confirmPassword,
+            selectedProfileIcon = viewModel.selectedProfileIcon,
+            nameError = viewModel.nameError,
+            emailError = viewModel.emailError,
+            passwordError = viewModel.passwordError,
+            confirmPasswordError = viewModel.confirmPasswordError
+        )
 
         Box(
             modifier = Modifier
@@ -401,7 +408,7 @@ fun RegisterScreen(
     LaunchedEffect(registerState.isSuccess) {
         if (registerState.isSuccess) {
             appState.isUserLoggedIn = true
-            navController.navigate("login") {
+            navController.navigate("home") {
                 popUpTo("register") { inclusive = true }
             }
         }

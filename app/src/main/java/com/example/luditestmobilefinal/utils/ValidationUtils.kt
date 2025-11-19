@@ -55,6 +55,84 @@ object ValidationUtils {
         val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$")
         return emailRegex.matches(email)
     }
+
+    // Validaciones para que fields no estén blank
+    // Validación para formulario de Login
+    fun validateLoginForm(
+        email: String,
+        password: String,
+        emailError: String?,
+        passwordError: String?
+    ): ValidationResult {
+        return when {
+            email.isBlank() -> ValidationResult.Error("El email es requerido")
+            password.isBlank() -> ValidationResult.Error("La contraseña es requerida")
+            emailError != null -> ValidationResult.Error(emailError)
+            passwordError != null -> ValidationResult.Error(passwordError)
+            else -> ValidationResult.Success
+        }
+    }
+
+    // Validación para formulario de Registro
+    fun validateRegisterForm(
+        name: String,
+        email: String,
+        password: String,
+        confirmPassword: String,
+        selectedProfileIcon: String?,
+        nameError: String?,
+        emailError: String?,
+        passwordError: String?,
+        confirmPasswordError: String?
+    ): ValidationResult {
+        return when {
+            name.isBlank() -> ValidationResult.Error("El nombre es requerido")
+            email.isBlank() -> ValidationResult.Error("El email es requerido")
+            password.isBlank() -> ValidationResult.Error("La contraseña es requerida")
+            confirmPassword.isBlank() -> ValidationResult.Error("Confirma tu contraseña")
+            selectedProfileIcon == null -> ValidationResult.Error("Selecciona un avatar")
+            nameError != null -> ValidationResult.Error(nameError)
+            emailError != null -> ValidationResult.Error(emailError)
+            passwordError != null -> ValidationResult.Error(passwordError)
+            confirmPasswordError != null -> ValidationResult.Error(confirmPasswordError)
+            else -> ValidationResult.Success
+        }
+    }
+
+    // Versiones que solo validan sin mensajes de error (para habilitar botones)
+    fun isLoginFormValid(
+        email: String,
+        password: String,
+        emailError: String?,
+        passwordError: String?
+    ): Boolean {
+        return email.isNotBlank() &&
+                password.isNotBlank() &&
+                emailError == null &&
+                passwordError == null
+    }
+
+    fun isRegisterFormValid(
+        name: String,
+        email: String,
+        password: String,
+        confirmPassword: String,
+        selectedProfileIcon: String?,
+        nameError: String?,
+        emailError: String?,
+        passwordError: String?,
+        confirmPasswordError: String?
+    ): Boolean {
+        return name.isNotBlank() &&
+                email.isNotBlank() &&
+                password.isNotBlank() &&
+                confirmPassword.isNotBlank() &&
+                selectedProfileIcon != null &&
+                nameError == null &&
+                emailError == null &&
+                passwordError == null &&
+                confirmPasswordError == null
+    }
 }
 
 // Resultado de validación

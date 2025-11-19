@@ -31,6 +31,7 @@ import com.example.luditestmobilefinal.ui.screens.register.ComicTextField
 import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.*
 import com.example.luditestmobilefinal.R
+import com.example.luditestmobilefinal.utils.ValidationUtils
 
 @Composable
 fun LoginScreen(
@@ -193,10 +194,12 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        val isFormValid = viewModel.emailError == null &&
-                viewModel.passwordError == null &&
-                viewModel.email.isNotBlank() &&
-                viewModel.password.isNotBlank()
+        val isFormValid = ValidationUtils.isLoginFormValid(
+            email = viewModel.email,
+            password = viewModel.password,
+            emailError = viewModel.emailError,
+            passwordError = viewModel.passwordError
+        )
 
         Box(
             modifier = Modifier
