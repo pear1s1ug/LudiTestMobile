@@ -37,6 +37,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.luditestmobilefinal.data.model.Personality
 import com.example.luditestmobilefinal.di.ViewModelFactory
+import com.example.luditestmobilefinal.ui.navigation.Routes
 import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.*
 import kotlinx.coroutines.delay
@@ -131,10 +132,10 @@ fun ResultScreen(
                     SuccessResultSection(
                         personalityProfile = resultState.personalityProfile!!,
                         featuredGames = resultState.featuredGames,
-                        viewModel = viewModel, // Pasar el viewModel
+                        viewModel = viewModel,
                         onNavigateToHome = {
-                            navController.navigate("home") {
-                                popUpTo("home") { inclusive = true }
+                            navController.navigate(Routes.RECOMMENDED_GAMES) {
+                                popUpTo(Routes.RESULT) { inclusive = true }
                             }
                         }
                     )
@@ -303,7 +304,7 @@ fun SuccessResultSection(
 
                 Box(contentAlignment = Alignment.Center) {
                     Text(
-                        text = "¡DESCUBRISTE TU GAMER PERSONALITY!",
+                        text = "¡DESCUBRISTE TU PERSONALIDAD GAMER!",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Black,
                         color = Color.Black,
@@ -311,7 +312,7 @@ fun SuccessResultSection(
                         modifier = Modifier.offset(x = 2.dp, y = 2.dp)
                     )
                     Text(
-                        text = "¡DESCUBRISTE TU GAMER PERSONALITY!",
+                        text = "¡DESCUBRISTE TU PERSONALIDAD GAMER!",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Black,
                         color = WarningOrange,
@@ -347,7 +348,7 @@ fun SuccessResultSection(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "CONTINUAR AL INICIO",
+                text = "VER MÁS JUEGOS RECOMENDADOS",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Black,
                 color = Color.Black,

@@ -1,9 +1,5 @@
 package com.example.luditestmobilefinal.ui.screens.recommended
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,21 +38,6 @@ import com.example.luditestmobilefinal.di.ViewModelFactory
 import com.example.luditestmobilefinal.ui.navigation.Routes
 import com.example.luditestmobilefinal.ui.theme.*
 import kotlinx.coroutines.delay
-
-// Función auxiliar para abrir el trailer
-private fun openTrailer(context: Context, trailerUrl: String?) {
-    if (trailerUrl.isNullOrEmpty()) {
-        Toast.makeText(context, "Trailer no disponible", Toast.LENGTH_SHORT).show()
-        return
-    }
-
-    try {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(trailerUrl))
-        context.startActivity(intent)
-    } catch (e: Exception) {
-        Toast.makeText(context, "No se puede abrir el trailer", Toast.LENGTH_SHORT).show()
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -288,8 +269,6 @@ fun GameCard(
     onWishlistToggle: (() -> Unit)? = null,
     onViewDetails: (() -> Unit)? = null
 ) {
-    val context = LocalContext.current
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -363,7 +342,7 @@ fun GameCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Fila de botones
+            // Fila de botones - SOLO DETALLES Y WISHLIST
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -400,7 +379,6 @@ fun GameCard(
                     }
                 }
 
-                // Botón de wishlist
                 // Botón de wishlist
                 onWishlistToggle?.let { toggle ->
                     var isPressed by remember { mutableStateOf(false) }
@@ -454,31 +432,6 @@ fun GameCard(
                             )
                         }
                     }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Botón de trailer (solo si hay URL)
-            if (!game.trailerUrl.isNullOrEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
-                        .background(WarningOrange, RoundedCornerShape(0.dp))
-                        .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
-                        .clickable {
-                            openTrailer(context, game.trailerUrl)
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "VER TRAILER",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.Black
-                    )
                 }
             }
         }

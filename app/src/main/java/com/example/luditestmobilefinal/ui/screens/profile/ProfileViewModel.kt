@@ -2,7 +2,9 @@ package com.example.luditestmobilefinal.ui.screens.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.luditestmobilefinal.data.model.PersonalityProfile
 import com.example.luditestmobilefinal.data.model.User
+import com.example.luditestmobilefinal.data.repository.PersonalityRepository
 import com.example.luditestmobilefinal.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,15 +13,17 @@ import kotlinx.coroutines.launch
 
 data class ProfileState(
     val user: User? = null,
+    val personalityProfile: PersonalityProfile? = null,
     val isLoading: Boolean = false,
     val isEditing: Boolean = false,
     val editName: String = "",
     val nameError: String? = null,
-    val showAvatarPicker: Boolean = false // Nuevo estado para el popup
+    val showAvatarPicker: Boolean = false
 )
 
 class ProfileViewModel(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val personalityRepository: PersonalityRepository
 ) : ViewModel() {
 
     private val _profileState = MutableStateFlow(ProfileState())
@@ -34,8 +38,13 @@ class ProfileViewModel(
             _profileState.value = _profileState.value.copy(isLoading = true)
             try {
                 val user = userRepository.getCurrentUser()
+                val personalityProfile = user?.personalityType?.let {
+                    personalityRepository.getPersonalityByType(it)
+                }
+
                 _profileState.value = ProfileState(
                     user = user,
+                    personalityProfile = personalityProfile,
                     isLoading = false,
                     editName = user?.name ?: ""
                 )
@@ -81,7 +90,7 @@ class ProfileViewModel(
         }
     }
 
-    // Nuevas funciones para el selector de avatar
+    // funciones para el selector de avatar
     fun showAvatarPicker() {
         _profileState.value = _profileState.value.copy(showAvatarPicker = true)
     }

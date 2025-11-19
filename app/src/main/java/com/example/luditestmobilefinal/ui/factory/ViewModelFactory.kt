@@ -24,7 +24,9 @@ class ViewModelFactory(
         LoginViewModel::class.java to { LoginViewModel(userRepository) },
         RegisterViewModel::class.java to { RegisterViewModel(userRepository) },
         HomeViewModel::class.java to { HomeViewModel(userRepository) },
-        ProfileViewModel::class.java to { ProfileViewModel(userRepository) },
+        ProfileViewModel::class.java to {
+            ProfileViewModel(userRepository, personalityRepository)
+        },
         QuizViewModel::class.java to { QuizViewModel(userRepository, personalityRepository) },
         ResultViewModel::class.java to {
             ResultViewModel(personalityRepository, videogameRepository, userRepository)

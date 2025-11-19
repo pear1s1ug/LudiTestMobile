@@ -265,10 +265,11 @@ fun WishlistGameCard(
             .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
     ) {
         Column {
-            // Reutilizamos el GameCard de RecommendedScreen
+            // Reutilizamos el GameCard de RecommendedScreen (ya sin botón de trailer)
             GameCard(
                 game = game,
-                onViewDetails = onViewDetails
+                onViewDetails = onViewDetails,
+                onWishlistToggle = null // No mostrar botón de wishlist aquí ya que tenemos nuestro propio botón de remover
             )
 
             // Fila de botones: Detalles y Remover

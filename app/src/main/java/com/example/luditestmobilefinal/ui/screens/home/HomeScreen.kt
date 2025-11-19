@@ -160,7 +160,12 @@ fun HomeScreen(
                 // Mensaje que invita a ver el perfil si completó el test
                 if (hasCompletedTest) {
                     ProfileInviteCard(
-                        onProfileClick = { navController.navigate("profile") }
+                        personalityType = homeState.user?.personalityType,
+                        onResultsClick = {
+                            homeState.user?.personalityType?.let { personality ->
+                                navController.navigate(Routes.result(personality.name))
+                            }
+                        }
                     )
                 }
 
@@ -533,7 +538,20 @@ fun DrawerButton(
 }
 
 @Composable
-fun ProfileInviteCard(onProfileClick: () -> Unit) {
+fun ProfileInviteCard(
+    personalityType: com.example.luditestmobilefinal.data.model.Personality?,
+    onResultsClick: () -> Unit
+) {
+    val personalityIcon = when (personalityType) {
+        com.example.luditestmobilefinal.data.model.Personality.DOMINANT -> "👑"
+        com.example.luditestmobilefinal.data.model.Personality.INFLUENTIAL -> "🎭"
+        com.example.luditestmobilefinal.data.model.Personality.STEADY -> "🛡️"
+        com.example.luditestmobilefinal.data.model.Personality.CONSCIENTIOUS -> "🔍"
+        else -> "🎮"
+    }
+
+    val personalityName = personalityType?.name ?: "TU PERSONALIDAD"
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -548,13 +566,20 @@ fun ProfileInviteCard(onProfileClick: () -> Unit) {
                 shape = RoundedCornerShape(0.dp)
             )
             .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
-            .clickable(onClick = onProfileClick)
+            .clickable(onClick = onResultsClick)
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            // Icono de la personalidad
             Text(
-                text = "🎮 TEST COMPLETADO",
+                text = personalityIcon,
+                fontSize = 24.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Text(
+                text = "TEST COMPLETADO",
                 fontSize = 14.sp,
                 color = Color.White,
                 fontWeight = FontWeight.Black,
@@ -564,7 +589,7 @@ fun ProfileInviteCard(onProfileClick: () -> Unit) {
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Ve a tu perfil para ver tus resultados",
+                text = "Descubre los detalles de tu personalidad gamer",
                 fontSize = 12.sp,
                 color = TextSecondary,
                 fontWeight = FontWeight.Medium,
@@ -573,8 +598,36 @@ fun ProfileInviteCard(onProfileClick: () -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Mostrar el tipo de personalidad
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(
+                        elevation = 4.dp,
+                        shape = RoundedCornerShape(0.dp),
+                        clip = false
+                    )
+                    .background(
+                        color = SuccessGreen,
+                        shape = RoundedCornerShape(0.dp)
+                    )
+                    .border(1.dp, Color.Black, RoundedCornerShape(0.dp))
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = personalityName,
+                    fontSize = 12.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Black,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             Text(
-                text = "TOCA PARA VER PERFIL →",
+                text = "TOCA PARA VER RESULTADOS COMPLETOS →",
                 fontSize = 10.sp,
                 color = AccentCyan,
                 fontWeight = FontWeight.Bold,

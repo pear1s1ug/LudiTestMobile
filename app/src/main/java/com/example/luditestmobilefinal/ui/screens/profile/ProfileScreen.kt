@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -18,7 +20,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -29,11 +30,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.luditestmobilefinal.data.model.Personality
 import com.example.luditestmobilefinal.data.model.User
 import com.example.luditestmobilefinal.di.ViewModelFactory
 import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.*
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,6 +109,7 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(DcDarkPurple)
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -130,9 +132,10 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Personality Results Section
+            // Personality Results Section - ACTUALIZADA con información completa
             PersonalityResultsSection(
                 user = profileState.user,
+                personalityProfile = profileState.personalityProfile,
                 onResetTest = { viewModel.resetTest() }
             )
 
@@ -352,7 +355,11 @@ fun UserInfoSection(
 }
 
 @Composable
-fun PersonalityResultsSection(user: User?, onResetTest: () -> Unit) {
+fun PersonalityResultsSection(
+    user: User?,
+    personalityProfile: com.example.luditestmobilefinal.data.model.PersonalityProfile?,
+    onResetTest: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -376,79 +383,13 @@ fun PersonalityResultsSection(user: User?, onResetTest: () -> Unit) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (user?.personalityType != null) {
-                // User has completed the test
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
-                        .background(SuccessGreen, RoundedCornerShape(0.dp))
-                        .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
-                        .padding(12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "PERSONALIDAD:",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-                        Text(
-                            text = user.personalityType.name,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.Black
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Test Statistics
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Text(
-                        text = "ESTADÍSTICAS:",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    user.personalityScores.forEach { (type, score) ->
-                        PersonalityScoreRow(
-                            personalityType = type.name,
-                            score = score,
-                            isDominant = type == user.personalityType
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Reset Test Button
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .height(40.dp)
-                        .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
-                        .background(WarningOrange, RoundedCornerShape(0.dp))
-                        .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
-                        .clickable { onResetTest() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "REINICIAR TEST",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.Black
-                    )
-                }
+            if (user?.personalityType != null && personalityProfile != null) {
+                // User has completed the test - Mostrar información completa
+                PersonalityDetailSection(
+                    personalityProfile = personalityProfile,
+                    user = user,
+                    onResetTest = onResetTest
+                )
             } else {
                 // User hasn't completed the test
                 Box(
@@ -469,6 +410,201 @@ fun PersonalityResultsSection(user: User?, onResetTest: () -> Unit) {
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun PersonalityDetailSection(
+    personalityProfile: com.example.luditestmobilefinal.data.model.PersonalityProfile,
+    user: User,
+    onResetTest: () -> Unit
+) {
+    val personalityIcon = when (personalityProfile.type) {
+        Personality.DOMINANT -> "👑"
+        Personality.INFLUENTIAL -> "🎭"
+        Personality.STEADY -> "🛡️"
+        Personality.CONSCIENTIOUS -> "🔍"
+        else -> "🎮"
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Header con icono y título
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                .background(SuccessGreen, RoundedCornerShape(0.dp))
+                .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = personalityIcon,
+                    fontSize = 32.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = personalityProfile.type.name,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.Black
+                )
+                Text(
+                    text = personalityProfile.title,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 16.sp
+                )
+            }
+        }
+
+        // Descripción
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                .background(PrimaryPurple, RoundedCornerShape(0.dp))
+                .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                .padding(16.dp)
+        ) {
+            Text(
+                text = personalityProfile.description,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                lineHeight = 18.sp
+            )
+        }
+
+        // Fortalezas
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                .background(CardDark, RoundedCornerShape(0.dp))
+                .border(2.dp, CardBorder, RoundedCornerShape(0.dp))
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = "TUS FORTALEZAS:",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Black,
+                    color = AccentCyan,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    personalityProfile.strengths.forEach { strength ->
+                        Text(
+                            text = "• $strength",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = TextPrimary,
+                            lineHeight = 18.sp
+                        )
+                    }
+                }
+            }
+        }
+
+        // Géneros recomendados
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                .background(DcNeonGreen, RoundedCornerShape(0.dp))
+                .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = "GÉNEROS RECOMENDADOS:",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Black,
+                    color = DcDarkPurple,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                Text(
+                    text = personalityProfile.recommendedGenres.joinToString(" • ") { it.name },
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = DcDarkPurple,
+                    lineHeight = 16.sp
+                )
+            }
+        }
+
+        // Estadísticas del test
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                .background(WarningOrange, RoundedCornerShape(0.dp))
+                .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                .padding(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = "ESTADÍSTICAS DEL TEST:",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.Black,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    user.personalityScores.forEach { (type, score) ->
+                        PersonalityScoreRow(
+                            personalityType = type.name,
+                            score = score,
+                            isDominant = type == user.personalityType
+                        )
+                    }
+                }
+            }
+        }
+
+        // Botón de reiniciar test
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(40.dp)
+                .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                .background(ErrorRed, RoundedCornerShape(0.dp))
+                .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                .clickable { onResetTest() },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "REINICIAR TEST",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Black,
+                color = Color.White
+            )
         }
     }
 }

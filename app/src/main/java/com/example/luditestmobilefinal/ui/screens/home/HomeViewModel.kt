@@ -37,6 +37,7 @@ class HomeViewModel(
         }
     }
 
+
     fun logout() {
         viewModelScope.launch {
             userRepository.logout()
