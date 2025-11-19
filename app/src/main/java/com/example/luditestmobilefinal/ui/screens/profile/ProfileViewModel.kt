@@ -14,7 +14,8 @@ data class ProfileState(
     val isLoading: Boolean = false,
     val isEditing: Boolean = false,
     val editName: String = "",
-    val nameError: String? = null
+    val nameError: String? = null,
+    val showAvatarPicker: Boolean = false // Nuevo estado para el popup
 )
 
 class ProfileViewModel(
@@ -77,6 +78,23 @@ class ProfileViewModel(
                     nameError = "El nombre no puede estar vacío"
                 )
             }
+        }
+    }
+
+    // Nuevas funciones para el selector de avatar
+    fun showAvatarPicker() {
+        _profileState.value = _profileState.value.copy(showAvatarPicker = true)
+    }
+
+    fun hideAvatarPicker() {
+        _profileState.value = _profileState.value.copy(showAvatarPicker = false)
+    }
+
+    fun updateProfileIcon(icon: String) {
+        viewModelScope.launch {
+            userRepository.updateProfileIcon(icon)
+            loadUserData() // Recargar datos con el nuevo ícono
+            hideAvatarPicker() // Cerrar el popup después de seleccionar
         }
     }
 

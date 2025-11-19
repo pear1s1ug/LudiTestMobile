@@ -28,6 +28,8 @@ bcrypt = "0.10.2"
 coil = "2.6.0"
 uiGraphics = "1.9.4"
 animationCoreLint = "1.9.4"
+foundation = "1.9.4"
+glanceAppwidget = "1.1.1"
 
 [libraries]
 # Predeterminadas
@@ -64,6 +66,8 @@ favre-bcrypt = { group = "at.favre.lib", name = "bcrypt", version.ref = "bcrypt"
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
 androidx-compose-animation-core-lint = { group = "androidx.compose.animation", name = "animation-core-lint", version.ref = "animationCoreLint" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glanceAppwidget" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

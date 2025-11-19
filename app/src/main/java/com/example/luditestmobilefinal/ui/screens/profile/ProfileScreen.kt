@@ -5,6 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -23,12 +26,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.luditestmobilefinal.data.model.User
 import com.example.luditestmobilefinal.di.ViewModelFactory
 import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.*
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +47,18 @@ fun ProfileScreen(
 
     LaunchedEffect(Unit) {
         viewModel.loadUserData()
+    }
+
+    // Popup para seleccionar avatar
+    if (profileState.showAvatarPicker) {
+        AvatarPickerDialog(
+            onAvatarSelected = { icon ->
+                viewModel.updateProfileIcon(icon)
+            },
+            onDismiss = {
+                viewModel.hideAvatarPicker()
+            }
+        )
     }
 
     Scaffold(
@@ -94,8 +111,11 @@ fun ProfileScreen(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Avatar Section
-            ProfileAvatarSection(profileState.user?.profileIcon)
+            // Avatar Section - Ahora es clickeable
+            ProfileAvatarSection(
+                profileIcon = profileState.user?.profileIcon,
+                onClick = { viewModel.showAvatarPicker() }
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -125,41 +145,60 @@ fun ProfileScreen(
 }
 
 @Composable
-fun ProfileAvatarSection(profileIcon: String?) {
-    Box(
-        modifier = Modifier
-            .size(120.dp)
-            .shadow(8.dp, RoundedCornerShape(0.dp), clip = false)
-            .background(CardDark, RoundedCornerShape(0.dp))
-            .border(3.dp, Color.Black, RoundedCornerShape(0.dp)),
-        contentAlignment = Alignment.Center
+fun ProfileAvatarSection(
+    profileIcon: String?,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable { onClick() }
     ) {
-        if (profileIcon != null) {
-            val iconResource = when (profileIcon) {
-                "fox" -> com.example.luditestmobilefinal.R.drawable.fox
-                "cat" -> com.example.luditestmobilefinal.R.drawable.cat
-                "dog" -> com.example.luditestmobilefinal.R.drawable.dog
-                "bear" -> com.example.luditestmobilefinal.R.drawable.bear
-                "dragon" -> com.example.luditestmobilefinal.R.drawable.dragon
-                "wolf" -> com.example.luditestmobilefinal.R.drawable.wolf
-                "pegasus" -> com.example.luditestmobilefinal.R.drawable.pegasus
-                "ikaros" -> com.example.luditestmobilefinal.R.drawable.ikaros
-                "deer" -> com.example.luditestmobilefinal.R.drawable.deer
-                else -> com.example.luditestmobilefinal.R.drawable.fox
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .shadow(8.dp, RoundedCornerShape(0.dp), clip = false)
+                .background(CardDark, RoundedCornerShape(0.dp))
+                .border(3.dp, Color.Black, RoundedCornerShape(0.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            if (profileIcon != null) {
+                val iconResource = when (profileIcon) {
+                    "fox" -> com.example.luditestmobilefinal.R.drawable.fox
+                    "cat" -> com.example.luditestmobilefinal.R.drawable.cat
+                    "dog" -> com.example.luditestmobilefinal.R.drawable.dog
+                    "bear" -> com.example.luditestmobilefinal.R.drawable.bear
+                    "dragon" -> com.example.luditestmobilefinal.R.drawable.dragon
+                    "wolf" -> com.example.luditestmobilefinal.R.drawable.wolf
+                    "pegasus" -> com.example.luditestmobilefinal.R.drawable.pegasus
+                    "ikaros" -> com.example.luditestmobilefinal.R.drawable.ikaros
+                    "deer" -> com.example.luditestmobilefinal.R.drawable.deer
+                    else -> com.example.luditestmobilefinal.R.drawable.fox
+                }
+                Image(
+                    painter = painterResource(id = iconResource),
+                    contentDescription = "Avatar",
+                    modifier = Modifier.size(80.dp)
+                )
+            } else {
+                // Default avatar icon
+                Image(
+                    painter = painterResource(id = com.example.luditestmobilefinal.R.drawable.joystick),
+                    contentDescription = "Avatar por defecto",
+                    modifier = Modifier.size(60.dp)
+                )
             }
-            Image(
-                painter = painterResource(id = iconResource),
-                contentDescription = "Avatar",
-                modifier = Modifier.size(80.dp)
-            )
-        } else {
-            // Default avatar icon
-            Image(
-                painter = painterResource(id = com.example.luditestmobilefinal.R.drawable.joystick),
-                contentDescription = "Avatar por defecto",
-                modifier = Modifier.size(60.dp)
-            )
         }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Texto indicador
+        Text(
+            text = "TOCA PARA CAMBIAR",
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Bold,
+            color = AccentCyan,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -559,5 +598,106 @@ fun ComicTextField(
                 cursorColor = PrimaryPurple
             )
         )
+    }
+}
+
+@Composable
+fun AvatarPickerDialog(
+    onAvatarSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(16.dp, RoundedCornerShape(0.dp), clip = false)
+                .background(DcDarkPurple, RoundedCornerShape(0.dp))
+                .border(4.dp, WarningOrange, RoundedCornerShape(0.dp))
+                .padding(24.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Título
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "SELECCIONA TU AVATAR",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Black,
+                        color = WarningOrange,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                // Grid de avatares
+                val animalIcons = listOf(
+                    "fox" to com.example.luditestmobilefinal.R.drawable.fox,
+                    "cat" to com.example.luditestmobilefinal.R.drawable.cat,
+                    "dog" to com.example.luditestmobilefinal.R.drawable.dog,
+                    "bear" to com.example.luditestmobilefinal.R.drawable.bear,
+                    "dragon" to com.example.luditestmobilefinal.R.drawable.dragon,
+                    "wolf" to com.example.luditestmobilefinal.R.drawable.wolf,
+                    "pegasus" to com.example.luditestmobilefinal.R.drawable.pegasus,
+                    "ikaros" to com.example.luditestmobilefinal.R.drawable.ikaros,
+                    "deer" to com.example.luditestmobilefinal.R.drawable.deer
+                )
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(animalIcons) { (iconName, iconRes) ->
+                        Box(
+                            modifier = Modifier
+                                .aspectRatio(1f)
+                                .shadow(6.dp, RoundedCornerShape(0.dp), clip = false)
+                                .background(PrimaryPurple, RoundedCornerShape(0.dp))
+                                .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                                .clickable { onAvatarSelected(iconName) },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = iconRes),
+                                contentDescription = "Avatar $iconName",
+                                modifier = Modifier.size(40.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Botón de cancelar
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .shadow(6.dp, RoundedCornerShape(0.dp), clip = false)
+                        .background(ErrorRed, RoundedCornerShape(0.dp))
+                        .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                        .clickable { onDismiss() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "CANCELAR",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White
+                    )
+                }
+            }
+        }
     }
 }
