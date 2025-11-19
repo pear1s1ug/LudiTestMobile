@@ -857,11 +857,6 @@ fun AnimatedGameBoyImage() {
                 scaleY = scale
             }
             .alpha(alpha)
-            .shadow(
-                elevation = 8.dp,
-                shape = RoundedCornerShape(8.dp),
-                clip = false
-            )
             .padding(8.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -870,11 +865,6 @@ fun AnimatedGameBoyImage() {
             contentDescription = "GameBoy Pixel Art",
             modifier = Modifier
                 .size(100.dp)
-                .graphicsLayer {
-                    // Efecto de pixelación extra
-                    scaleX = scale * 0.98f
-                    scaleY = scale * 0.98f
-                }
                 .alpha(alpha),
             contentScale = ContentScale.Fit
         )

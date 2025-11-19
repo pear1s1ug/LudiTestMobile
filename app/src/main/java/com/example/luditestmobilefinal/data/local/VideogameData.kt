@@ -56,30 +56,6 @@ object VideogameData {
             releaseDate = "2025-11-04"
         ),
         Videogame(
-            id = 1004,
-            name = "Football Manager 26 Console",
-            genres = listOf(GameGenre.SIMULATION, GameGenre.SPORTS, GameGenre.MANAGEMENT_SIM),
-            platform = listOf(GamePlatform.PS5, GamePlatform.XBOX_ONE, GamePlatform.XBOX_SERIES_X),
-            description = "La versión optimizada para consolas de FM26, con interfaz rediseñada para mando, navegación intuitiva y una experiencia de día de partido inmersiva construida sobre Unity. Incluye nuevas herramientas tácticas, animaciones volumétricas y compatibilidad con guardados de FM23 y FM24 que se convierten al nuevo formato. " ,
-            rating = 4.4,
-            trailerUrl = "https://www.youtube.com/watch?v=IZXP3IkyhK0",
-            imageUrl = "https://gaming-cdn.com/images/news/articles/14793/cover/1000x563/football-manager-26-saldra-el-4-de-noviembre-de-2025-cover68c28fb5c2aed.jpg",
-            featured = false,
-            releaseDate = "2025-11-04"
-        ),
-        Videogame(
-            id = 1005,
-            name = "Football Manager 26 Mobile",
-            genres = listOf(GameGenre.SIMULATION, GameGenre.SPORTS, GameGenre.MANAGEMENT_SIM),
-            platform = listOf(GamePlatform.SMARTPHONES),
-            description = "La versión móvil de FM26 exclusiva para suscriptores de Netflix. Incluye un modo clásico, nueva interfaz, fútbol femenino y compatibilidad de partidas guardadas desde FM24 Mobile. ",
-            rating = 4.3,
-            trailerUrl = "https://www.youtube.com/watch?v=IZXP3IkyhK0",
-            imageUrl = "https://gaming-cdn.com/images/news/articles/14793/cover/1000x563/football-manager-26-saldra-el-4-de-noviembre-de-2025-cover68c28fb5c2aed.jpg",
-            featured = false,
-            releaseDate = "2025-11-04"
-        ),
-        Videogame(
             id = 1006,
             name = "Dead Static Drive",
             genres = listOf(GameGenre.ACTION, GameGenre.SURVIVAL, GameGenre.HORROR, GameGenre.ADVENTURE),
@@ -797,18 +773,6 @@ object VideogameData {
             rating = 0.0,
             trailerUrl = "https://youtu.be/sFjJU5lf2K0?si=LxTbqYZMUU_FfLzP",
             imageUrl = "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/3884520/e2ac312a5853d5b6084aeb6f20323b8da792d03d/capsule_616x353.jpg?t=1761169908",
-            featured = false,
-            releaseDate = "2025-12-04"
-        ),
-        Videogame(
-            id = 1064,
-            name = "Football Manager 26 Touch",
-            genres = listOf(GameGenre.SIMULATION, GameGenre.SPORTS, GameGenre.MANAGEMENT_SIM),
-            platform = listOf(GamePlatform.SWITCH),
-            description = "Versión Touch de Football Manager 26 optimizada para Nintendo Switch, con controles táctiles y una experiencia de gestión futbolística más accesible.",
-            rating = 0.0,
-            trailerUrl = "https://youtu.be/J0Mhw11bTYA?si=S3qs_Yglxamwbi_P",
-            imageUrl = "https://s.pacn.ws/1/p/1db/football-manager-26--touch-multilanguage-887809.6.jpg?v=t5nm0f",
             featured = false,
             releaseDate = "2025-12-04"
         ),
