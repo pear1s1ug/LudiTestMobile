@@ -6,6 +6,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import com.example.luditestmobilefinal.R
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -99,11 +101,36 @@ fun QuizScreen(
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    // Submit Button
-                    SubmitButton(
-                        isEnabled = quizState.selectedAnswerIndex != null,
-                        onClick = { viewModel.submitAnswer() }
-                    )
+                    // BOTONES - OPCIÓN 2: Botón centrado en primera pregunta
+                    if (viewModel.canGoToPrevious()) {
+                        // Dos botones cuando no es la primera pregunta
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            PreviousButton(
+                                onClick = { viewModel.goToPreviousQuestion() },
+                                modifier = Modifier.weight(1f)
+                            )
+                            SubmitButton(
+                                isEnabled = quizState.selectedAnswerIndex != null,
+                                onClick = { viewModel.submitAnswer() },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    } else {
+                        // Un botón centrado cuando es la primera pregunta
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            SubmitButton(
+                                isEnabled = quizState.selectedAnswerIndex != null,
+                                onClick = { viewModel.submitAnswer() },
+                                modifier = Modifier.width(200.dp) // Mismo ancho que los botones individuales
+                            )
+                        }
+                    }
                 } else {
                     // Loading state
                     Box(
@@ -362,7 +389,8 @@ fun ProgressSection(progress: Float, progressText: String) {
 fun QuestionSection(
     question: com.example.luditestmobilefinal.data.model.Question,
     selectedAnswerIndex: Int?,
-    onAnswerSelected: (Int) -> Unit
+    onAnswerSelected: (Int) -> Unit,
+    isPreviouslyAnswered: Boolean = false
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -448,7 +476,11 @@ fun AnswerOption(
 }
 
 @Composable
-fun SubmitButton(isEnabled: Boolean, onClick: () -> Unit) {
+fun SubmitButton(
+    isEnabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
 
     // Función para reproducir sonido de confirmación
@@ -461,8 +493,7 @@ fun SubmitButton(isEnabled: Boolean, onClick: () -> Unit) {
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .height(70.dp)
             .shadow(
                 elevation = if (isEnabled) 12.dp else 6.dp,
@@ -485,11 +516,62 @@ fun SubmitButton(isEnabled: Boolean, onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = if (isEnabled) "CONFIRMAR RESPUESTA" else "SELECCIONA UNA OPCIÓN",
-            fontSize = 18.sp,
+            text = if (isEnabled) "CONFIRMAR" else "SELECCIONA OPCIÓN", // Texto más corto
+            fontSize = 16.sp,
             fontWeight = FontWeight.Black,
             color = if (isEnabled) Color.Black else TextTertiary,
-            letterSpacing = 0.5.sp
+            letterSpacing = 0.5.sp,
+            textAlign = TextAlign.Center,
+            maxLines = 1
         )
+    }
+}
+
+@Composable
+fun PreviousButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    // Función para reproducir sonido de retroceso
+    fun playBackSound() {
+        val mediaPlayer = MediaPlayer.create(context, R.raw.lowbitsharp) // O el sonido que prefieras
+        mediaPlayer?.setOnCompletionListener {
+            it.release()
+        }
+        mediaPlayer?.start()
+    }
+
+    Box(
+        modifier = modifier
+            .height(70.dp)
+            .shadow(6.dp, RoundedCornerShape(0.dp), clip = false)
+            .background(WarningOrange, RoundedCornerShape(0.dp))
+            .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
+            .clickable {
+                playBackSound()
+                onClick()
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Volver a pregunta anterior",
+                tint = Color.Black,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = "ANTERIOR",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Black,
+                color = Color.Black,
+                letterSpacing = 0.5.sp
+            )
+        }
     }
 }

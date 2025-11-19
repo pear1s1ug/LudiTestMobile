@@ -47,6 +47,7 @@ fun LoginScreen(
 
     val context = LocalContext.current
 
+    // Función para reproducir sonido - REUTILIZABLE
     fun playGameStartSound() {
         val mediaPlayer = MediaPlayer.create(context, R.raw.gamestart)
         mediaPlayer?.setOnCompletionListener {
@@ -171,6 +172,7 @@ fun LoginScreen(
                 .clickable(
                     enabled = isFormValid && !loginState.isLoading
                 ) {
+                    // NUEVO: Sonido agregado aquí también
                     playGameStartSound()
                     if (isFormValid) viewModel.login()
                 },
@@ -259,7 +261,11 @@ fun LoginScreen(
             contentAlignment = Alignment.Center
         ) {
             TextButton(
-                onClick = { navController.navigate("register") },
+                onClick = {
+                    // OPCIONAL: También agregar sonido al link de registro
+                    playGameStartSound()
+                    navController.navigate("register")
+                },
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = AccentCyan
                 )

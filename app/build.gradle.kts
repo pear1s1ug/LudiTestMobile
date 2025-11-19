@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.androidx.compose.animation.core.lint)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.android.youtube.player)
+    implementation(libs.androidx.compose.animation.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

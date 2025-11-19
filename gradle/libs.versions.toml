@@ -32,6 +32,7 @@ animationCoreLint = "1.9.4"
 foundation = "1.9.4"
 glanceAppwidget = "1.1.1"
 youtubePlayer = "13.0.0"
+animationCore = "1.9.4"
 
 [libraries]
 # Predeterminadas
@@ -71,6 +72,7 @@ androidx-compose-animation-core-lint = { group = "androidx.compose.animation", n
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glanceAppwidget" }
 android-youtube-player = { group = "com.pierfrancescosoffritti.androidyoutubeplayer", name = "core", version.ref = "youtubePlayer" }
+androidx-compose-animation-core = { group = "androidx.compose.animation", name = "animation-core", version.ref = "animationCore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

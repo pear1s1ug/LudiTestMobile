@@ -1,5 +1,16 @@
 package com.example.luditestmobilefinal.ui.screens.recommended
 
+import android.media.MediaPlayer
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,11 +29,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -51,7 +64,12 @@ fun RecommendedScreen(
 ) {
     val viewModel: RecommendedViewModel = viewModel(factory = viewModelFactory)
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
+    // EFECTO PARA EL SFX - se ejecuta una vez al entrar a la pantalla
+    LaunchedEffect(Unit) {
+        playScreenEnterSfx(context)
+    }
     Scaffold(
         containerColor = DcDarkPurple,
         contentColor = TextPrimary
@@ -213,20 +231,14 @@ fun RecommendedScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         item {
-                            // SOLO UNA IMAGEN AL PRINCIPIO - JUSTO AQUÍ
+                            // IMAGEN CON ANIMACIÓN PIXEL ART RETRO
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(bottom = 16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.gameboy2),
-                                    contentDescription = "Juegos recomendados",
-                                    modifier = Modifier
-                                        .size(100.dp)
-                                        .padding(bottom = 8.dp)
-                                )
+                                AnimatedGameBoyImage()
                             }
                             // Header con filtros
                             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -301,6 +313,23 @@ fun RecommendedScreen(
         }
     }
 }
+
+// Función placeholder para el SFX - reemplaza con tu implementación real
+private fun playScreenEnterSfx(context: android.content.Context) {
+    try {
+        val mediaPlayer = android.media.MediaPlayer.create(context, R.raw.appearmagic)
+        mediaPlayer?.let { player ->
+            player.setOnCompletionListener {
+                player.release()
+            }
+            player.start()
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        android.util.Log.e("SFX", "Error reproduciendo sonido: ${e.message}")
+    }
+}
+
 
 @Composable
 fun SearchBar(
@@ -576,7 +605,6 @@ fun GameCard(
                 fontWeight = FontWeight.Medium
             )
 
-            // CORRECCIÓN: Cambiar Mododer por Modifier
             Spacer(modifier = Modifier.height(4.dp))
 
             // Géneros
@@ -753,5 +781,102 @@ fun GameImageWithFallback(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun AnimatedGameBoyImage() {
+    val infiniteTransition = rememberInfiniteTransition(label = "gameboy_animation")
+
+    // 1. Animación de flotación (floating)
+    val floatOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 8f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = 2000
+                0f at 0 with LinearEasing
+                8f at 1000 with LinearEasing
+                0f at 2000 with LinearEasing
+            },
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "float_animation"
+    )
+
+    // 2. Animación de rotación sutil
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = -2f,
+        targetValue = 2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "rotation_animation"
+    )
+
+    // 3. Animación de escala (pulsación)
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = 1800
+                1f at 0 with FastOutSlowInEasing
+                1.05f at 600 with FastOutSlowInEasing
+                1f at 1200 with FastOutSlowInEasing
+                1.02f at 1800 with FastOutSlowInEasing
+            },
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "scale_animation"
+    )
+
+    // 4. Animación de brillo (efecto screen glow)
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0.9f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = 1600
+                0.9f at 0 with LinearEasing
+                1f at 800 with LinearEasing
+                0.9f at 1600 with LinearEasing
+            },
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "alpha_animation"
+    )
+
+    Box(
+        modifier = Modifier
+            .graphicsLayer {
+                translationY = floatOffset
+                rotationZ = rotation
+                scaleX = scale
+                scaleY = scale
+            }
+            .alpha(alpha)
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(8.dp),
+                clip = false
+            )
+            .padding(8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.gameboy2),
+            contentDescription = "GameBoy Pixel Art",
+            modifier = Modifier
+                .size(100.dp)
+                .graphicsLayer {
+                    // Efecto de pixelación extra
+                    scaleX = scale * 0.98f
+                    scaleY = scale * 0.98f
+                }
+                .alpha(alpha),
+            contentScale = ContentScale.Fit
+        )
     }
 }

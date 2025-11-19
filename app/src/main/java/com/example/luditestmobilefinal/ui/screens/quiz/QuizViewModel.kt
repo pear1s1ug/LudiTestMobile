@@ -25,7 +25,9 @@ data class QuizState(
     val finalPersonality: Personality? = null,
     val showTiebreaker: Boolean = false,
     val tiebreakerQuestion: Question? = null,
-    val tiebreakerSelectedAnswer: Int? = null
+    val tiebreakerSelectedAnswer: Int? = null,
+    val answerHistory: List<Pair<Int, Map<Personality, Int>>> = emptyList(),
+    val selectionHistory: Map<Int, Int> = emptyMap() // questionId -> selectedIndex
 )
 
 class QuizViewModel(
@@ -52,13 +54,35 @@ class QuizViewModel(
         viewModelScope.launch {
             val user = userRepository.getCurrentUser()
             user?.let {
+                val existingHistory = buildHistoryFromUserAnswers(it.answerWeights)
+                val existingSelections = buildSelectionHistoryFromUser(it.answeredQuestions, it.answerWeights)
+
                 _quizState.value = _quizState.value.copy(
                     personalityScores = it.personalityScores,
                     answeredQuestions = it.answeredQuestions.toSet(),
-                    currentQuestionIndex = it.answeredQuestions.size
+                    currentQuestionIndex = it.answeredQuestions.size,
+                    answerHistory = existingHistory,
+                    selectionHistory = existingSelections // ← Inicializar selecciones
                 )
             }
         }
+    }
+
+
+    // Reconstruir historial desde las respuestas guardadas
+    private fun buildHistoryFromUserAnswers(answerWeights: List<Map<Personality, Int>>): List<Pair<Int, Map<Personality, Int>>> {
+        val questions = QuestionnaireData.questions
+        val history = mutableListOf<Pair<Int, Map<Personality, Int>>>()
+
+        // Para cada respuesta guardada, encontrar la pregunta correspondiente
+        answerWeights.forEachIndexed { index, weights ->
+            if (index < questions.size) {
+                val questionId = questions[index].id
+                history.add(Pair(questionId, weights))
+            }
+        }
+
+        return history
     }
 
     fun selectAnswer(answerIndex: Int) {
@@ -95,6 +119,16 @@ class QuizViewModel(
             val nextQuestionIndex = currentState.currentQuestionIndex + 1
             val newAnsweredQuestions = currentState.answeredQuestions + currentQuestion.id
 
+            // NUEVO: Guardar en el historial antes de avanzar
+            val newHistory = currentState.answerHistory + Pair(
+                currentQuestion.id,
+                selectedAnswer.personalityWeights
+            )
+
+            // NUEVO: Guardar la selección también
+            val newSelectionHistory = currentState.selectionHistory +
+                    (currentQuestion.id to selectedAnswerIndex)
+
             if (nextQuestionIndex >= currentState.questions.size) {
                 // Test completado - calcular resultado
                 val user = userRepository.getCurrentUser()
@@ -107,11 +141,14 @@ class QuizViewModel(
                     personalityScores = newScores,
                     answeredQuestions = newAnsweredQuestions,
                     currentQuestionIndex = nextQuestionIndex,
-                    selectedAnswerIndex = null
+                    selectedAnswerIndex = null,
+                    answerHistory = newHistory,
+                    selectionHistory = newSelectionHistory // ← Guardar selección
                 )
             }
         }
     }
+
 
     private fun checkForTie(user: com.example.luditestmobilefinal.data.model.User, newScores: Map<Personality, Int>, answeredQuestions: Set<Int>) {
         val hasTie = personalityRepository.hasTie(user.copy(personalityScores = newScores))
@@ -213,6 +250,100 @@ class QuizViewModel(
             0f
         }
     }
+
+    // Volver a la pregunta anterior
+    fun goToPreviousQuestion() {
+        val currentState = _quizState.value
+
+        // Solo podemos retroceder si no estamos en la primera pregunta
+        if (currentState.currentQuestionIndex > 0) {
+            val previousQuestionIndex = currentState.currentQuestionIndex - 1
+            val previousQuestion = currentState.questions.getOrNull(previousQuestionIndex)
+
+            // Remover la última respuesta del historial
+            val newHistory = currentState.answerHistory.dropLast(1)
+            val newScores = currentState.personalityScores.toMutableMap()
+
+            // NUEVO: Obtener la selección anterior
+            val previousSelection = if (previousQuestion != null) {
+                currentState.selectionHistory[previousQuestion.id]
+            } else null
+
+            // Restar los puntos de la respuesta que vamos a eliminar
+            if (currentState.answerHistory.isNotEmpty()) {
+                val lastAnswer = currentState.answerHistory.last()
+                lastAnswer.second.forEach { (personality, points) ->
+                    newScores[personality] = (newScores[personality] ?: 0) - points
+                }
+            }
+
+            viewModelScope.launch {
+                // Remover la respuesta del repositorio también
+                val user = userRepository.getCurrentUser()
+                user?.let {
+                    recalculateScoresFromHistory(newHistory)
+                }
+
+                _quizState.value = currentState.copy(
+                    currentQuestionIndex = previousQuestionIndex,
+                    selectedAnswerIndex = previousSelection, // ← Restaurar selección anterior
+                    personalityScores = newScores,
+                    answerHistory = newHistory,
+                    selectionHistory = currentState.selectionHistory // Mantener el historial completo
+                )
+            }
+        }
+    }
+
+    // Función helper para recalcular scores desde el historial
+    private suspend fun recalculateScoresFromHistory(history: List<Pair<Int, Map<Personality, Int>>>) {
+        val newScores = mutableMapOf<Personality, Int>()
+
+        history.forEach { (_, weights) ->
+            weights.forEach { (personality, points) ->
+                newScores[personality] = (newScores[personality] ?: 0) + points
+            }
+        }
+
+        // Actualizar el estado
+        _quizState.value = _quizState.value.copy(
+            personalityScores = newScores
+        )
+    }
+
+    // Función para verificar si se puede retroceder
+    fun canGoToPrevious(): Boolean {
+        return _quizState.value.currentQuestionIndex > 0
+    }
+
+    // Reconstruir historial de selecciones
+    private fun buildSelectionHistoryFromUser(
+        answeredQuestions: List<Int>,
+        answerWeights: List<Map<Personality, Int>>
+    ): Map<Int, Int> {
+        val selectionHistory = mutableMapOf<Int, Int>()
+        val questions = QuestionnaireData.questions
+
+        // Para cada pregunta respondida, encontrar qué opción fue seleccionada
+        answeredQuestions.forEachIndexed { index, questionId ->
+            if (index < answerWeights.size) {
+                val weights = answerWeights[index]
+                val question = questions.find { it.id == questionId }
+
+                // Encontrar qué opción coincide con los weights guardados
+                question?.options?.forEachIndexed { optionIndex, option ->
+                    if (option.personalityWeights == weights) {
+                        selectionHistory[questionId] = optionIndex
+                    }
+                }
+            }
+        }
+
+        return selectionHistory
+    }
+
+
+
 
     fun getProgressText(): String {
         val current = _quizState.value.currentQuestionIndex + 1

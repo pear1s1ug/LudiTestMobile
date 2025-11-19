@@ -8,7 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -17,8 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-import com.example.luditestmobilefinal.data.model.User
 import com.example.luditestmobilefinal.ui.navigation.Routes
 import com.example.luditestmobilefinal.ui.theme.*
 
@@ -31,6 +31,8 @@ fun GlobalDrawerContent(
     onCloseDrawer: () -> Unit,
     onLogout: () -> Unit
 ) {
+    var showQuizWarningDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -94,9 +96,14 @@ fun GlobalDrawerContent(
                     text = "Inicio",
                     icon = Icons.Default.Home,
                     onClick = {
-                        onCloseDrawer()
-                        navController.navigate("home") {
-                            popUpTo("home") { inclusive = true }
+                        if (currentRoute == "quiz") {
+                            // Mostrar advertencia si estamos en el quiz
+                            showQuizWarningDialog = true
+                        } else {
+                            onCloseDrawer()
+                            navController.navigate("home") {
+                                popUpTo("home") { inclusive = true }
+                            }
                         }
                     }
                 )
@@ -105,32 +112,52 @@ fun GlobalDrawerContent(
             DrawerButton(
                 text = "Perfil de Usuario",
                 onClick = {
-                    onCloseDrawer()
-                    navController.navigate("profile")
+                    if (currentRoute == "quiz") {
+                        // Mostrar advertencia si estamos en el quiz
+                        showQuizWarningDialog = true
+                    } else {
+                        onCloseDrawer()
+                        navController.navigate("profile")
+                    }
                 }
             )
 
             DrawerButton(
                 text = "Mi Wishlist",
                 onClick = {
-                    onCloseDrawer()
-                    navController.navigate("wishlist")
+                    if (currentRoute == "quiz") {
+                        // Mostrar advertencia si estamos en el quiz
+                        showQuizWarningDialog = true
+                    } else {
+                        onCloseDrawer()
+                        navController.navigate("wishlist")
+                    }
                 }
             )
 
             DrawerButton(
                 text = "Juegos Recomendados",
                 onClick = {
-                    onCloseDrawer()
-                    navController.navigate("recommended_games")
+                    if (currentRoute == "quiz") {
+                        // Mostrar advertencia si estamos en el quiz
+                        showQuizWarningDialog = true
+                    } else {
+                        onCloseDrawer()
+                        navController.navigate("recommended_games")
+                    }
                 }
             )
 
             DrawerButton(
                 text = "Sobre LudiTest",
                 onClick = {
-                    onCloseDrawer()
-                    navController.navigate("about")
+                    if (currentRoute == "quiz") {
+                        // Mostrar advertencia si estamos en el quiz
+                        showQuizWarningDialog = true
+                    } else {
+                        onCloseDrawer()
+                        navController.navigate("about")
+                    }
                 }
             )
         }
@@ -153,11 +180,16 @@ fun GlobalDrawerContent(
                 )
                 .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
                 .clickable {
-                    onCloseDrawer()
-                    if (isGuest) {
-                        navController.navigate("login")
+                    if (currentRoute == "quiz") {
+                        // Mostrar advertencia si estamos en el quiz
+                        showQuizWarningDialog = true
                     } else {
-                        onLogout()
+                        onCloseDrawer()
+                        if (isGuest) {
+                            navController.navigate("login")
+                        } else {
+                            onLogout()
+                        }
                     }
                 },
             contentAlignment = Alignment.Center
@@ -169,6 +201,115 @@ fun GlobalDrawerContent(
                 color = Color.White,
                 letterSpacing = 0.5.sp
             )
+        }
+    }
+
+    // Diálogo de advertencia para el Quiz
+    if (showQuizWarningDialog) {
+        QuizExitWarningDialog(
+            onConfirmExit = {
+                showQuizWarningDialog = false
+                onCloseDrawer()
+                navController.navigate("home") {
+                    popUpTo("home") { inclusive = true }
+                }
+            },
+            onDismiss = {
+                showQuizWarningDialog = false
+            }
+        )
+    }
+}
+
+@Composable
+fun QuizExitWarningDialog(
+    onConfirmExit: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(8.dp, RoundedCornerShape(0.dp), clip = false)
+                .background(ErrorRed, RoundedCornerShape(0.dp))
+                .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
+                .padding(24.dp)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                // Icono de advertencia
+                Text(
+                    text = "⚠️",
+                    fontSize = 48.sp
+                )
+
+                // Título
+                Text(
+                    text = "¿SALIR DEL QUIZ?",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Black,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+
+                // Mensaje
+                Text(
+                    text = "Perderás todo el progreso del quiz si sales ahora. Are you sure?",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 20.sp
+                )
+
+                // Botones
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Botón Cancelar
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp)
+                            .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                            .background(PrimaryPurple, RoundedCornerShape(0.dp))
+                            .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                            .clickable { onDismiss() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "CANCELAR",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White
+                        )
+                    }
+
+                    // Botón Salir
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp)
+                            .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                            .background(WarningOrange, RoundedCornerShape(0.dp))
+                            .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                            .clickable { onConfirmExit() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "SALIR",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.Black
+                        )
+                    }
+                }
+            }
         }
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -21,6 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.luditestmobilefinal.ui.theme.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +35,8 @@ fun GlobalTopBar(
     onBackClick: (() -> Unit)? = null,
     onHomeClick: (() -> Unit)? = null
 ) {
+    var showQuizWarningDialog by remember { mutableStateOf(false) }
+
     val isHome = currentRoute == "home"
     val isLoginScreen = currentRoute == "login"
 
@@ -117,7 +123,13 @@ fun GlobalTopBar(
                         )
                         .background(AccentCyan, RoundedCornerShape(0.dp))
                         .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
-                        .clickable { onHomeClick?.invoke() },
+                        .clickable {
+                            if (currentRoute == "quiz") {
+                                showQuizWarningDialog = true
+                            } else {
+                                onHomeClick?.invoke()
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -135,4 +147,17 @@ fun GlobalTopBar(
             actionIconContentColor = Color.White
         )
     )
+
+    // Diálogo de advertencia para el Quiz (para el TopBar)
+    if (showQuizWarningDialog) {
+        QuizExitWarningDialog(
+            onConfirmExit = {
+                showQuizWarningDialog = false
+                onHomeClick?.invoke()
+            },
+            onDismiss = {
+                showQuizWarningDialog = false
+            }
+        )
+    }
 }
