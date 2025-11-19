@@ -273,15 +273,27 @@ fun SuccessGameDetail(
             // Plataformas
             GamePlatformsSection(platforms = game.platform)
 
-            // BOTÓN VOLVER A RECOMENDADOS - NUEVO
-            BackToRecommendedButton(navController = navController)
+            // BOTÓN VOLVER A PANTALLA ANTERIOR
+            DynamicBackButton(navController = navController)
         }
     }
 }
 
-//  BOTÓN DE VOLVER
+// BOTÓN VOLVER DINAMICO
 @Composable
-fun BackToRecommendedButton(navController: NavHostController) {
+fun DynamicBackButton(navController: NavHostController) {
+    // Obtener la ruta anterior de forma segura
+    val previousRoute = remember {
+        navController.previousBackStackEntry?.destination?.route ?: ""
+    }
+
+    // Determinar el texto del botón basado en la ruta anterior
+    val buttonText = when {
+        previousRoute.contains("wishlist", ignoreCase = true) -> "VOLVER A WISHLIST"
+        previousRoute.contains("recommended", ignoreCase = true) -> "VOLVER A JUEGOS RECOMENDADOS"
+        else -> "VOLVER" // Texto por defecto
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -305,7 +317,7 @@ fun BackToRecommendedButton(navController: NavHostController) {
                 modifier = Modifier.size(20.dp)
             )
             Text(
-                text = "VOLVER A JUEGOS RECOMENDADOS",
+                text = buttonText, // ← Texto dinámico
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Black,
                 color = Color.White,
