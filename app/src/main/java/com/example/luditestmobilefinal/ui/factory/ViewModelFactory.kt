@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.luditestmobilefinal.data.repository.*
 import com.example.luditestmobilefinal.ui.screens.home.HomeViewModel
 import com.example.luditestmobilefinal.ui.screens.login.LoginViewModel
+import com.example.luditestmobilefinal.ui.screens.profile.ProfileViewModel
 import com.example.luditestmobilefinal.ui.screens.register.RegisterViewModel
 
 class ViewModelFactory(
@@ -17,7 +18,8 @@ class ViewModelFactory(
     private val creators = mapOf<Class<out ViewModel>, () -> ViewModel>(
         LoginViewModel::class.java to { LoginViewModel(userRepository) },
         RegisterViewModel::class.java to { RegisterViewModel(userRepository) },
-        HomeViewModel::class.java to { HomeViewModel(userRepository) }
+        HomeViewModel::class.java to { HomeViewModel(userRepository) },
+        ProfileViewModel::class.java to { ProfileViewModel(userRepository) }
         // Agregar más ViewModels aquí conforme los vayas creando
     )
 

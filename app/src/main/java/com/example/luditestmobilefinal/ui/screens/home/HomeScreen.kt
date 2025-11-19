@@ -60,7 +60,9 @@ fun HomeScreen(
             HomeDrawerContent(
                 homeState = homeState,
                 isGuest = isGuest,
-                onProfileClick = { /* TODO: Navigate to profile */ },
+                onProfileClick = {
+                    navController.navigate("profile")
+                },
                 onWishlistClick = { /* TODO: Navigate to wishlist */ },
                 onRecommendedClick = { /* TODO: Navigate to recommended games */ },
                 onAboutClick = { /* TODO: Navigate to about screen */ }, // ✅ NUEVO
@@ -96,7 +98,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .background(Purple40),
+                    .background(DcDarkPurple),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
@@ -314,7 +316,7 @@ fun HomeTopBar(onMenuClick: () -> Unit) {
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Purple40,
+            containerColor = DcDarkPurple,
             titleContentColor = Color.White
         )
     )
@@ -332,7 +334,7 @@ fun WelcomeSection(userName: String?) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "¡Hola de nuevo,",
+                text = "¡HOLA DE NUEVO,",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Black,
                 color = Color.White,
@@ -347,7 +349,7 @@ fun WelcomeSection(userName: String?) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "${userName?.uppercase() ?: "gamer"}!",
+                text = "${userName?.uppercase() ?: "GAMER"}!",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Black,
                 color = Color.White,
