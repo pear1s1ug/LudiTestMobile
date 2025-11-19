@@ -33,14 +33,15 @@ private val DarkColorScheme = darkColorScheme(
     secondaryContainer = ButtonSecondary,
     error = ErrorRed,
     onError = TextPrimary,
-    surfaceTint = PrimaryPurple
+    surfaceTint = PrimaryPurple,
+    outlineVariant = Color(0xFF28242E)
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryPurple,
     secondary = SecondaryPurple,
     tertiary = AccentCyan,
-    background = Color(0xFFFAFAFA),
+    background = DcWhite,
     surface = Color(0xFFFFFFFF),
     onPrimary = Color.White,
     onSecondary = Color.White,
@@ -48,12 +49,13 @@ private val LightColorScheme = lightColorScheme(
     onBackground = OnSurfaceLight,
     onSurface = OnSurfaceLight,
     surfaceVariant = TertiaryContainerLight,
-    outline = Color(0xFF817D8A),
+    outline = Color(0xFF7B7582),
     primaryContainer = TertiaryContainerLight,
-    secondaryContainer = Color(0xFFEDE4F7),
+    secondaryContainer = Color(0xFFE8DEEF),
     error = ErrorRed,
     onError = Color.White,
-    surfaceTint = PrimaryPurple
+    surfaceTint = PrimaryPurple,
+    outlineVariant = Color(0xFFCBC4D0)
 )
 
 @Composable
@@ -76,6 +78,7 @@ fun LudiTestMobileFinalTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
+            // Usa el fondo oscuro refinado para la status bar
             window.statusBarColor = colorScheme.background.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }

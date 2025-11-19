@@ -213,6 +213,21 @@ fun RecommendedScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         item {
+                            // SOLO UNA IMAGEN AL PRINCIPIO - JUSTO AQUÍ
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.gameboy2),
+                                    contentDescription = "Juegos recomendados",
+                                    modifier = Modifier
+                                        .size(100.dp)
+                                        .padding(bottom = 8.dp)
+                                )
+                            }
                             // Header con filtros
                             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                 // Header informativo

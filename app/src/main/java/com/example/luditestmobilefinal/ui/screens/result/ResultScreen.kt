@@ -1,6 +1,5 @@
 package com.example.luditestmobilefinal.ui.screens.result
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,7 +10,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -24,10 +22,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,6 +39,7 @@ import com.example.luditestmobilefinal.ui.navigation.Routes
 import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.*
 import kotlinx.coroutines.delay
+import com.example.luditestmobilefinal.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,10 +51,20 @@ fun ResultScreen(
 ) {
     val viewModel: ResultViewModel = viewModel(factory = viewModelFactory)
     val resultState by viewModel.resultState.collectAsState()
+    val context = LocalContext.current
 
     val personality = remember(personalityType) {
         personalityType?.let { type ->
             Personality.values().find { it.name == type }
+        }
+    }
+
+    // Efecto de sonido cuando la pantalla aparece y se cargan los resultados
+    LaunchedEffect(resultState.personalityProfile) {
+        if (resultState.personalityProfile != null && !resultState.isLoading) {
+            // Pequeño delay para que la animación visual coincida con el sonido
+            delay(300)
+            playResultSound(context)
         }
     }
 
@@ -115,6 +124,15 @@ fun ResultScreen(
             }
         }
     }
+}
+
+// Función para reproducir el sonido de resultados
+private fun playResultSound(context: android.content.Context) {
+    val mediaPlayer = android.media.MediaPlayer.create(context, R.raw.appearmagic)
+    mediaPlayer?.setOnCompletionListener {
+        it.release()
+    }
+    mediaPlayer?.start()
 }
 
 @Composable

@@ -26,10 +26,12 @@ security = "1.1.0"
 bcrypt = "0.10.2"
 # Coil
 coil = "2.6.0"
+
 uiGraphics = "1.9.4"
 animationCoreLint = "1.9.4"
 foundation = "1.9.4"
 glanceAppwidget = "1.1.1"
+youtubePlayer = "13.0.0"
 
 [libraries]
 # Predeterminadas
@@ -68,6 +70,7 @@ androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", ve
 androidx-compose-animation-core-lint = { group = "androidx.compose.animation", name = "animation-core-lint", version.ref = "animationCoreLint" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glanceAppwidget" }
+android-youtube-player = { group = "com.pierfrancescosoffritti.androidyoutubeplayer", name = "core", version.ref = "youtubePlayer" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,12 +1,12 @@
 package com.example.luditestmobilefinal.ui.screens.quiz
 
+import android.media.MediaPlayer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import com.example.luditestmobilefinal.R
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -448,6 +449,17 @@ fun AnswerOption(
 
 @Composable
 fun SubmitButton(isEnabled: Boolean, onClick: () -> Unit) {
+    val context = LocalContext.current
+
+    // Función para reproducir sonido de confirmación
+    fun playSubmitSound() {
+        val mediaPlayer = MediaPlayer.create(context, R.raw.newnotification)
+        mediaPlayer?.setOnCompletionListener {
+            it.release()
+        }
+        mediaPlayer?.start()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -464,7 +476,12 @@ fun SubmitButton(isEnabled: Boolean, onClick: () -> Unit) {
             .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
             .clickable(
                 enabled = isEnabled
-            ) { onClick() },
+            ) {
+                if (isEnabled) {
+                    playSubmitSound()
+                    onClick()
+                }
+            },
         contentAlignment = Alignment.Center
     ) {
         Text(

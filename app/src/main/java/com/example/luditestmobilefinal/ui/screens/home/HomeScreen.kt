@@ -1,5 +1,6 @@
 package com.example.luditestmobilefinal.ui.screens.home
 
+import android.media.MediaPlayer
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.luditestmobilefinal.R
@@ -214,6 +216,17 @@ fun AnimatedTestButton(
         label = "scaleAnim"
     )
 
+    val context = LocalContext.current
+
+    // Función para reproducir sonido
+    fun playButtonSound() {
+        val mediaPlayer = MediaPlayer.create(context, R.raw.twinkle)
+        mediaPlayer?.setOnCompletionListener {
+            it.release()
+        }
+        mediaPlayer?.start()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -241,7 +254,10 @@ fun AnimatedTestButton(
                 shape = RoundedCornerShape(0.dp)
             )
             .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
-            .clickable(onClick = onTestClick),
+            .clickable(onClick = {
+                playButtonSound()
+                onTestClick()
+            }),
         contentAlignment = Alignment.Center
     ) {
         Text(

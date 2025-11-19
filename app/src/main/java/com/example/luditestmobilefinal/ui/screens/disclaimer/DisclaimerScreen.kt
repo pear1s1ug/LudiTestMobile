@@ -1,21 +1,18 @@
 package com.example.luditestmobilefinal.ui.screens.disclaimer
 
+import android.media.MediaPlayer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import com.example.luditestmobilefinal.R
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +23,7 @@ import androidx.navigation.NavHostController
 import com.example.luditestmobilefinal.ui.theme.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -177,6 +175,26 @@ fun DisclaimerScreen(
                     .padding(horizontal = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                val context = LocalContext.current
+
+                // Función para reproducir sonido de cancelar
+                fun playCancelSound() {
+                    val mediaPlayer = MediaPlayer.create(context, R.raw.lowbitsharp)
+                    mediaPlayer?.setOnCompletionListener {
+                        it.release()
+                    }
+                    mediaPlayer?.start()
+                }
+
+                // Función para reproducir sonido de aceptar
+                fun playAcceptSound() {
+                    val mediaPlayer = MediaPlayer.create(context, R.raw.echo)
+                    mediaPlayer?.setOnCompletionListener {
+                        it.release()
+                    }
+                    mediaPlayer?.start()
+                }
+
                 // Botón Cancelar
                 Box(
                     modifier = Modifier
@@ -192,7 +210,10 @@ fun DisclaimerScreen(
                             shape = RoundedCornerShape(0.dp)
                         )
                         .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
-                        .clickable { navController.popBackStack() },
+                        .clickable {
+                            playCancelSound()
+                            navController.popBackStack()
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -222,7 +243,10 @@ fun DisclaimerScreen(
                             shape = RoundedCornerShape(0.dp)
                         )
                         .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
-                        .clickable { onAccept() },
+                        .clickable {
+                            playAcceptSound()
+                            onAccept()
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(

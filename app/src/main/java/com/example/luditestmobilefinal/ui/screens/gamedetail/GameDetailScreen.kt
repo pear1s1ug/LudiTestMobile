@@ -1,5 +1,6 @@
 package com.example.luditestmobilefinal.ui.screens.gamedetail
 
+import android.view.ViewGroup
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,17 +26,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.luditestmobilefinal.R
 import com.example.luditestmobilefinal.ui.factory.ViewModelFactory
 import com.example.luditestmobilefinal.ui.theme.*
+import com.example.luditestmobilefinal.utils.YouTubeUtils
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,7 +87,8 @@ fun GameDetailScreen(
                         game = gameDetailState.game!!,
                         isInWishlist = gameDetailState.isInWishlist,
                         onWishlistToggle = { viewModel.toggleWishlist() },
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        navController = navController // ← AGREGAR ESTE PARÁMETRO
                     )
                 }
 
@@ -218,7 +225,8 @@ fun SuccessGameDetail(
     game: com.example.luditestmobilefinal.data.model.Videogame,
     isInWishlist: Boolean,
     onWishlistToggle: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navController: NavHostController // ← AGREGAR ESTE PARÁMETRO
 ) {
     Column(
         modifier = modifier
@@ -249,6 +257,10 @@ fun SuccessGameDetail(
                 onWishlistToggle = onWishlistToggle
             )
 
+            if (!game.trailerUrl.isNullOrEmpty() && YouTubeUtils.isValidYouTubeUrl(game.trailerUrl)) {
+                TrailerSection(trailerUrl = game.trailerUrl)
+            }
+
             // Información básica
             GameInfoSection(game = game)
 
@@ -260,9 +272,49 @@ fun SuccessGameDetail(
 
             // Plataformas
             GamePlatformsSection(platforms = game.platform)
+
+            // BOTÓN VOLVER A RECOMENDADOS - NUEVO
+            BackToRecommendedButton(navController = navController)
         }
     }
 }
+
+//  BOTÓN DE VOLVER
+@Composable
+fun BackToRecommendedButton(navController: NavHostController) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp)
+            .shadow(6.dp, RoundedCornerShape(0.dp), clip = false)
+            .background(PrimaryPurple, RoundedCornerShape(0.dp))
+            .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
+            .clickable {
+                navController.popBackStack() // Vuelve a la pantalla anterior
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Volver",
+                tint = Color.White,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = "VOLVER A JUEGOS RECOMENDADOS",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Black,
+                color = Color.White,
+                letterSpacing = 0.5.sp
+            )
+        }
+    }
+}
+
 
 @Composable
 fun GameDetailImage(
@@ -511,3 +563,33 @@ fun InfoRow(label: String, value: String, color: Color) {
         )
     }
 }
+
+
+@Composable
+fun TrailerSection(trailerUrl: String) {
+    val videoId = YouTubeUtils.extractYouTubeVideoId(trailerUrl)
+
+    if (videoId != null) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                .background(CardDark, RoundedCornerShape(0.dp))
+                .border(2.dp, CardBorder, RoundedCornerShape(0.dp))
+                .padding(16.dp)
+        ) {
+            Column {
+                Text(
+                    text = "TRAILER",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Black,
+                    color = ErrorRed,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                YouTubeUtils.YouTubePlayerComposable(videoId = videoId)
+            }
+        }
+    }
+}
+
