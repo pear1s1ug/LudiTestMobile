@@ -111,6 +111,32 @@ class UserRepository(private val context: Context) {
     }
 
     // ******** WISHLIST ********
+    // Obtener wishlist completa con datos de juegos
+    suspend fun getWishlistGames(): List<Int> {
+        val user = getCurrentUser() ?: return emptyList()
+        return user.wishlist
+    }
+
+    // Alternar juego en wishlist (agregar/remover)
+    suspend fun toggleWishlist(gameId: Int): Boolean {
+        val user = getCurrentUser() ?: return false
+        val isInWishlist = user.wishlist.contains(gameId)
+
+        if (isInWishlist) {
+            removeFromWishlist(gameId)
+            return false
+        } else {
+            addToWishlist(gameId)
+            return true
+        }
+    }
+
+    // Obtener estado de wishlist para múltiples juegos
+    suspend fun getWishlistStatus(gameIds: List<Int>): Map<Int, Boolean> {
+        val user = getCurrentUser() ?: return emptyMap()
+        return gameIds.associateWith { user.wishlist.contains(it) }
+    }
+
     // Agregar juego a wishlist
     suspend fun addToWishlist(gameId: Int) {
         val user = getCurrentUser() ?: return
@@ -132,6 +158,7 @@ class UserRepository(private val context: Context) {
         val user = getCurrentUser() ?: return false
         return user.wishlist.contains(gameId)
     }
+
 
     //(REGISTERED USER)
     // ******** LOGIN ********
@@ -337,4 +364,13 @@ class UserRepository(private val context: Context) {
     suspend fun getFavoriteGameIds(): Set<Int> {
         return getFavoriteGames().toSet()
     }
+
+    /*suspend fun clearAllUsers() {
+        context.dataStore.edit {
+            it.remove(registeredUsersKey)
+            it.remove(currentUserKey)
+            it[isLoggedInKey] = false
+        }
+        println("Todos los usuarios han sido eliminados")
+    }*/
 }

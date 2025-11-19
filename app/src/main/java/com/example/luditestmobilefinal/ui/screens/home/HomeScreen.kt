@@ -35,6 +35,7 @@ import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.*
 import kotlinx.coroutines.launch
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -63,11 +64,21 @@ fun HomeScreen(
                 homeState = homeState,
                 isGuest = isGuest,
                 onProfileClick = {
+                    scope.launch { drawerState.close() }
                     navController.navigate("profile")
                 },
-                onWishlistClick = { /* TODO: Navigate to wishlist */ },
-                onRecommendedClick = { /* TODO: Navigate to recommended games */ },
-                onAboutClick = { navController.navigate("about") },
+                onWishlistClick = {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(Routes.WISHLIST)
+                },
+                onRecommendedClick = {
+                    scope.launch { drawerState.close() }
+                    navController.navigate(Routes.RECOMMENDED_GAMES)
+                },
+                onAboutClick = {
+                    scope.launch { drawerState.close() }
+                    navController.navigate("about")
+                },
                 onAuthAction = {
                     scope.launch { drawerState.close() }
                     if (isGuest) {
@@ -134,8 +145,7 @@ fun HomeScreen(
                     hasCompletedTest = hasCompletedTest,
                     onTestClick = {
                         if (hasCompletedTest) {
-                            // Si ya completó el test, mostrar diálogo de confirmación para reiniciar
-                            // Por ahora vamos directo al quiz para simplificar
+                            // Si ya completó el test, reiniciar y ir al quiz
                             viewModel.resetTest()
                             navController.navigate(Routes.QUIZ)
                         } else {
@@ -163,6 +173,7 @@ fun HomeScreen(
         }
     }
 }
+
 @Composable
 fun HomeDrawerContent(
     homeState: HomeState,
@@ -264,7 +275,7 @@ fun HomeDrawerContent(
             )
         }
 
-        Spacer(Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(1f))
 
         // Auth Button - Centrado
         Box(

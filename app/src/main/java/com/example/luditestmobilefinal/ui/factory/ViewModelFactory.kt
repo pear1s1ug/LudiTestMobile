@@ -8,8 +8,10 @@ import com.example.luditestmobilefinal.ui.screens.home.HomeViewModel
 import com.example.luditestmobilefinal.ui.screens.login.LoginViewModel
 import com.example.luditestmobilefinal.ui.screens.profile.ProfileViewModel
 import com.example.luditestmobilefinal.ui.screens.quiz.QuizViewModel
+import com.example.luditestmobilefinal.ui.screens.recommended.RecommendedViewModel
 import com.example.luditestmobilefinal.ui.screens.register.RegisterViewModel
 import com.example.luditestmobilefinal.ui.screens.result.ResultViewModel
+import com.example.luditestmobilefinal.ui.screens.wishlist.WishlistViewModel
 
 class ViewModelFactory(
     private val userRepository: UserRepository,
@@ -23,7 +25,18 @@ class ViewModelFactory(
         HomeViewModel::class.java to { HomeViewModel(userRepository) },
         ProfileViewModel::class.java to { ProfileViewModel(userRepository) },
         QuizViewModel::class.java to { QuizViewModel(userRepository, personalityRepository) },
-        ResultViewModel::class.java to { ResultViewModel(personalityRepository, videogameRepository) }
+        ResultViewModel::class.java to {
+            ResultViewModel(personalityRepository, videogameRepository, userRepository)
+        },
+        RecommendedViewModel::class.java to {
+            RecommendedViewModel(
+                userRepository,
+                videogameRepository
+            )
+        },
+        WishlistViewModel::class.java to {
+            WishlistViewModel(userRepository, videogameRepository)
+        }
         // Agregar más ViewModels aquí conforme los vayas creando
     )
 

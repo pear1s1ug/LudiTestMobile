@@ -12,8 +12,10 @@ import com.example.luditestmobilefinal.ui.screens.home.HomeScreen
 import com.example.luditestmobilefinal.ui.screens.login.LoginScreen
 import com.example.luditestmobilefinal.ui.screens.profile.ProfileScreen
 import com.example.luditestmobilefinal.ui.screens.quiz.QuizScreen
+import com.example.luditestmobilefinal.ui.screens.recommended.RecommendedScreen
 import com.example.luditestmobilefinal.ui.screens.register.RegisterScreen
 import com.example.luditestmobilefinal.ui.screens.result.ResultScreen
+import com.example.luditestmobilefinal.ui.screens.wishlist.WishlistScreen
 import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.*
 
@@ -78,6 +80,20 @@ fun AppNavigation(
                 viewModelFactory = viewModelFactory,
                 appState = appState,
                 personalityType = personalityType
+            )
+        }
+
+        composable(Routes.RECOMMENDED_GAMES) {
+            RecommendedScreen(
+                navController = navController,
+                viewModelFactory = viewModelFactory
+            )
+        }
+
+        composable(Routes.WISHLIST) {
+            WishlistScreen(
+                navController = navController,
+                viewModelFactory = viewModelFactory
             )
         }
     }

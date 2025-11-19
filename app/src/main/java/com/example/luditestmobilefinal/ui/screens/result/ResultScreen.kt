@@ -12,12 +12,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +39,7 @@ import com.example.luditestmobilefinal.data.model.Personality
 import com.example.luditestmobilefinal.di.ViewModelFactory
 import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.*
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -127,6 +131,7 @@ fun ResultScreen(
                     SuccessResultSection(
                         personalityProfile = resultState.personalityProfile!!,
                         featuredGames = resultState.featuredGames,
+                        viewModel = viewModel, // Pasar el viewModel
                         onNavigateToHome = {
                             navController.navigate("home") {
                                 popUpTo("home") { inclusive = true }
@@ -267,6 +272,7 @@ fun EmptyResultSection(onNavigateToHome: () -> Unit) {
 fun SuccessResultSection(
     personalityProfile: com.example.luditestmobilefinal.data.model.PersonalityProfile,
     featuredGames: List<com.example.luditestmobilefinal.data.model.Videogame>,
+    viewModel: ResultViewModel,
     onNavigateToHome: () -> Unit
 ) {
     val personalityIcon = when (personalityProfile.type) {
@@ -321,10 +327,13 @@ fun SuccessResultSection(
         )
 
         if (featuredGames.isNotEmpty()) {
-            RecommendedGamesSection(
-                games = featuredGames,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (featuredGames.isNotEmpty()) {
+                RecommendedGamesSection(
+                    games = featuredGames,
+                    viewModel = viewModel, // Pasar el viewModel aquí
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
 
         Box(
@@ -455,6 +464,7 @@ fun PersonalityCard(
 @Composable
 fun RecommendedGamesSection(
     games: List<com.example.luditestmobilefinal.data.model.Videogame>,
+    viewModel: ResultViewModel,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -480,14 +490,31 @@ fun RecommendedGamesSection(
             modifier = Modifier.fillMaxWidth()
         ) {
             items(games) { game ->
-                RecommendedGameCard(game = game)
+                RecommendedGameCard(
+                    game = game,
+                    isInWishlist = viewModel.isInWishlist(game.id),
+                    onWishlistToggle = { viewModel.toggleWishlist(game.id) }
+                )
             }
         }
     }
 }
 
 @Composable
-fun RecommendedGameCard(game: com.example.luditestmobilefinal.data.model.Videogame) {
+fun RecommendedGameCard(
+    game: com.example.luditestmobilefinal.data.model.Videogame,
+    isInWishlist: Boolean = false,
+    onWishlistToggle: (() -> Unit)? = null
+) {
+    var isPressed by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            delay(150)
+            isPressed = false
+        }
+    }
+
     Box(
         modifier = Modifier
             .width(140.dp)
@@ -525,24 +552,39 @@ fun RecommendedGameCard(game: com.example.luditestmobilefinal.data.model.Videoga
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "★ ${game.rating}",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Black,
-                        color = WarningOrange
-                    )
-
-                    Text(
-                        text = game.platform.firstOrNull()?.displayName?.take(3) ?: "",
-                        fontSize = 8.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = TextSecondary
-                    )
+                // Botón de wishlist
+                onWishlistToggle?.let { toggle ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(30.dp)
+                            .shadow(
+                                elevation = if (isPressed) 1.dp else 2.dp,
+                                shape = RoundedCornerShape(0.dp),
+                                clip = false
+                            )
+                            .background(
+                                if (isInWishlist) ErrorRed else SuccessGreen,
+                                shape = RoundedCornerShape(0.dp)
+                            )
+                            .border(
+                                width = if (isPressed) 1.dp else 2.dp,
+                                color = Color.Black,
+                                shape = RoundedCornerShape(0.dp)
+                            )
+                            .clickable {
+                                isPressed = true
+                                toggle()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = if (isInWishlist) "Remover de wishlist" else "Agregar a wishlist",
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
         }
