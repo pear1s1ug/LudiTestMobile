@@ -422,7 +422,7 @@ fun PersonalityCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
-                    .background(DcNeonGreen, RoundedCornerShape(0.dp))
+                    .background(YellowAccent, RoundedCornerShape(0.dp))
                     .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
                     .padding(16.dp)
             ) {
@@ -502,8 +502,14 @@ fun RecommendedGameCard(
     isInWishlist: Boolean = false,
     onWishlistToggle: (() -> Unit)? = null
 ) {
+    // Estado LOCAL para el botón de favoritos
+    var localIsInWishlist by remember { mutableStateOf(isInWishlist) }
     var isPressed by remember { mutableStateOf(false) }
-    var debugClickCount by remember { mutableStateOf(0) }
+
+    // Actualizar el estado local cuando cambia la prop
+    LaunchedEffect(isInWishlist) {
+        localIsInWishlist = isInWishlist
+    }
 
     LaunchedEffect(isPressed) {
         if (isPressed) {
@@ -568,20 +574,6 @@ fun RecommendedGameCard(
                 )
 
                 Text(
-                    text = "Wishlist: $isInWishlist", // DEBUG
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isInWishlist) ErrorRed else SuccessGreen
-                )
-
-                Text(
-                    text = "Clicks: $debugClickCount", // DEBUG
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = AccentCyan
-                )
-
-                Text(
                     text = game.description,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
@@ -600,40 +592,55 @@ fun RecommendedGameCard(
                 )
             }
 
-            // Botón de wishlist con DEBUG
+            // Botón de wishlist - VERSIÓN MEJORADA
             onWishlistToggle?.let { toggle ->
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(44.dp)
                         .shadow(
-                            elevation = if (isPressed) 1.dp else 2.dp,
+                            elevation = if (isPressed) 1.dp else 3.dp,
                             shape = RoundedCornerShape(0.dp),
                             clip = false
                         )
                         .background(
-                            // ROJO cuando está en wishlist, VERDE cuando no
-                            if (isInWishlist) ErrorRed else SuccessGreen,
+                            if (localIsInWishlist) ErrorRed else SuccessGreen,
                             shape = RoundedCornerShape(0.dp)
                         )
                         .border(
                             width = if (isPressed) 1.dp else 2.dp,
-                            color = Color.Black,
+                            color = if (localIsInWishlist) Color.White else Color.Black,
                             shape = RoundedCornerShape(0.dp)
                         )
                         .clickable {
-                            println("DEBUG: Botón clickeado - isInWishlist antes: $isInWishlist")
                             isPressed = true
-                            debugClickCount++
+                            // Cambiar el estado LOCAL inmediatamente
+                            localIsInWishlist = !localIsInWishlist
+                            // Llamar a la función del ViewModel
                             toggle()
-                            println("DEBUG: Función toggle llamada")
                         },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Favorite,
-                        contentDescription = if (isInWishlist) "Remover de wishlist" else "Agregar a wishlist",
+                        contentDescription = if (localIsInWishlist) "Remover de wishlist" else "Agregar a wishlist",
                         tint = Color.White,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            } ?: run {
+                // Placeholder si no hay función de toggle
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .background(Color.Gray, RoundedCornerShape(0.dp))
+                        .border(2.dp, Color.DarkGray, RoundedCornerShape(0.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = "Wishlist no disponible",
+                        tint = Color.White,
+                        modifier = Modifier.size(22.dp)
                     )
                 }
             }

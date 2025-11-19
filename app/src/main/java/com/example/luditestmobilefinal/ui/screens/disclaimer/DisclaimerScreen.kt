@@ -150,7 +150,7 @@ fun DisclaimerScreen(
                     Text(
                         text = "EL TEST TOMA APROXIMADAMENTE 5 MINUTOS\nY CONSTA DE 12 PREGUNTAS DE OPCIÓN MÚLTIPLE",
                         fontSize = 14.sp,
-                        color = Color.Black,
+                        color = Color.White,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
                         lineHeight = 18.sp

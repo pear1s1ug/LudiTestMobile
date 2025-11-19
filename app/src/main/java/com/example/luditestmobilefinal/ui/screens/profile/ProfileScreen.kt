@@ -489,7 +489,7 @@ fun PersonalityDetailSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
-                .background(DcNeonGreen, RoundedCornerShape(0.dp))
+                .background(YellowAccent, RoundedCornerShape(0.dp))
                 .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
                 .padding(16.dp)
         ) {
@@ -520,7 +520,7 @@ fun PersonalityDetailSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
-                .background(SecondaryPurple, RoundedCornerShape(0.dp))
+                .background(DcDarkPurple, RoundedCornerShape(0.dp))
                 .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
                 .padding(16.dp)
         ) {

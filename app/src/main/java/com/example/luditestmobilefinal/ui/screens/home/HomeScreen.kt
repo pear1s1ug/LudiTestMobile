@@ -264,7 +264,7 @@ fun AnimatedTestButton(
             text = "REALIZAR EL LUDITEST!",
             fontSize = 18.sp,
             fontWeight = FontWeight.Black,
-            color = DcDarkPurple,
+            color = CardDark,
             letterSpacing = 0.5.sp,
             textAlign = TextAlign.Center
         )
