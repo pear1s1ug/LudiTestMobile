@@ -9,8 +9,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class VideogameRepository {
-    // **** CRUD Y OTRAS FUNCIONALIDADES ÚTILES ****
 
+    // **** CRUD BÁSICO ****
     fun getAllVideogames(): List<Videogame> {
         return VideogameData.videogames
     }
@@ -19,16 +19,8 @@ class VideogameRepository {
         return VideogameData.videogames.find { it.id == id }
     }
 
-    fun updateVideogame(updatedVideogame: Videogame): Boolean {
-        return false
-    }
-
-    fun deleteVideogame(id: Int): Boolean {
-        return false
-    }
-
-    fun videogameExists(id: Int): Boolean {
-        return VideogameData.videogames.any { it.id == id }
+    fun getVideogamesByIds(ids: List<Int>): List<Videogame> {
+        return VideogameData.videogames.filter { it.id in ids }
     }
 
     fun getVideogamesCount(): Int {
@@ -36,7 +28,6 @@ class VideogameRepository {
     }
 
     // **** BÚSQUEDA Y FILTRADO ****
-
     fun getFeaturedVideogames(): List<Videogame> {
         return VideogameData.videogames.filter { it.featured }
     }
@@ -66,16 +57,15 @@ class VideogameRepository {
         return VideogameData.videogames.filter { it.rating >= minRating }
     }
 
-    fun getVideogamesByPlatformAndGenre(platform: GamePlatform, genre: GameGenre): List<Videogame> {
-        return VideogameData.videogames.filter {
-            it.platform.contains(platform) && it.genres.contains(genre)
-        }
+    // **** FUNCIONALIDADES POR FECHA ****
+    fun getUpcomingVideogames(): List<Videogame> {
+        val currentDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+        return VideogameData.videogames.filter { it.releaseDate > currentDate }
     }
 
-    fun getVideogamesByPlatforms(platforms: List<GamePlatform>): List<Videogame> {
-        return VideogameData.videogames.filter { videogame ->
-            videogame.platform.any { platform -> platforms.contains(platform) }
-        }
+    fun getRecentlyReleasedVideogames(): List<Videogame> {
+        val currentDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+        return VideogameData.videogames.filter { it.releaseDate <= currentDate }
     }
 
     fun getVideogamesSortedByRating(ascending: Boolean = false): List<Videogame> {
@@ -94,43 +84,7 @@ class VideogameRepository {
         }
     }
 
-    // **** FUNCIONALIDADES POR FECHA ****
-
-    fun getVideogamesByReleaseDate(date: String): List<Videogame> {
-        return VideogameData.videogames.filter { it.releaseDate == date }
-    }
-
-    fun getUpcomingVideogames(): List<Videogame> {
-        val currentDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
-        return VideogameData.videogames.filter { it.releaseDate > currentDate }
-    }
-
-    fun getRecentlyReleasedVideogames(): List<Videogame> {
-        val currentDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
-        return VideogameData.videogames.filter { it.releaseDate <= currentDate }
-    }
-
-    fun getVideogamesByMonthYear(month: Int, year: Int): List<Videogame> {
-        return VideogameData.videogames.filter { videogame ->
-            val parts = videogame.releaseDate.split("-")
-            if (parts.size == 3) {
-                parts[0].toIntOrNull() == year && parts[1].toIntOrNull() == month
-            } else {
-                false
-            }
-        }
-    }
-
-    fun getVideogamesSortedByReleaseDate(ascending: Boolean = true): List<Videogame> {
-        return if (ascending) {
-            VideogameData.videogames.sortedBy { it.releaseDate }
-        } else {
-            VideogameData.videogames.sortedByDescending { it.releaseDate }
-        }
-    }
-
     // **** FUNCIONALIDADES POR PERSONALIDAD ****
-
     fun getVideogamesByPersonality(personality: Personality): List<Videogame> {
         val personalityRepo = PersonalityRepository()
         val recommendedGenres = personalityRepo.getRecommendedGenres(personality)
@@ -138,29 +92,22 @@ class VideogameRepository {
     }
 
     fun getFeaturedGamesByPersonality(personality: Personality, limit: Int = 3): List<Videogame> {
-        val primaryGenre = getPrimaryGenre(personality)
-        return VideogameData.videogames
-            .filter { it.genres.contains(primaryGenre) && isValidVideogame(it) }
-            .sortedByDescending { it.rating }
-            .take(limit)
+        return getRecommendedGamesForPersonality(personality).take(limit)
     }
 
     fun getMainFeaturedGame(personality: Personality): Videogame? {
-        val primaryGenre = getPrimaryGenre(personality)
-        return VideogameData.videogames
-            .filter { it.genres.contains(primaryGenre) && isValidVideogame(it) }
-            .maxByOrNull { it.rating }
+        return getRecommendedGamesForPersonality(personality).firstOrNull()
     }
 
     fun getGamesByPrimaryGenre(personality: Personality): List<Videogame> {
-        val primaryGenre = getPrimaryGenre(personality)
+        val personalityRepo = PersonalityRepository()
+        val primaryGenre = personalityRepo.getPrimaryGenre(personality)
         return VideogameData.videogames
             .filter { it.genres.contains(primaryGenre) && isValidVideogame(it) }
             .sortedByDescending { it.rating }
     }
 
-    // **** FUNCIONES DE VALIDACIÓN Y UTILIDAD ****
-
+    // **** FUNCIONES PRIVADAS ****
     private fun getValidVideogamesByGenres(genres: List<GameGenre>): List<Videogame> {
         return VideogameData.videogames
             .filter { videogame ->
@@ -169,21 +116,28 @@ class VideogameRepository {
             .sortedByDescending { it.rating }
     }
 
-    private fun getPrimaryGenre(personality: Personality): GameGenre {
-        val personalityRepo = PersonalityRepository()
-        return personalityRepo.getPrimaryGenre(personality)
-    }
-
     private fun isValidVideogame(videogame: Videogame): Boolean {
         return videogame.name.isNotBlank() &&
                 videogame.description.isNotBlank() &&
                 videogame.platform.isNotEmpty() &&
                 videogame.genres.isNotEmpty() &&
-                (isValidUrl(videogame.imageUrl) || isValidUrl(videogame.trailerUrl))
+                videogame.imageUrl.isNotBlank()
     }
 
-    private fun isValidUrl(url: String?): Boolean {
-        return !url.isNullOrEmpty() &&
-                (url.startsWith("http://") || url.startsWith("https://"))
+    private fun getRecommendedGamesForPersonality(personality: Personality): List<Videogame> {
+        // Primero intentar con la lista fija de IDs
+        val gameIds = when (personality) {
+            Personality.DOMINANT -> listOf(1561, 1326, 1431) // DOOM, Blades of Fire, Metal Gear Solid
+            Personality.INFLUENTIAL -> listOf(1520, 1375, 1027) // Pax Dei, Mario Party, Yakuza
+            Personality.STEADY -> listOf(1252, 1446, 1111) // South of Midnight, Hollow Knight, Lost Hellden
+            Personality.CONSCIENTIOUS -> listOf(1470, 1002, 1015) // Frostpunk 2, Europa Universalis, Surviving Mars
+        }
+
+        val fixedGames = gameIds.mapNotNull { getVideogameById(it) }
+
+        // Si no hay juegos en la lista fija
+        return fixedGames.ifEmpty {
+            getVideogamesByPersonality(personality).take(6)
+        }
     }
 }

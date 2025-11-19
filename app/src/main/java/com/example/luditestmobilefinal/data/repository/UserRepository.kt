@@ -304,4 +304,37 @@ class UserRepository(private val context: Context) {
         val user = getCurrentUser() ?: return false
         return user.personalityType != null
     }
+
+    // ******** FAVORITOS ********
+    // Agregar juego a favoritos
+    suspend fun addToFavorites(gameId: Int) {
+        val user = getCurrentUser() ?: return
+        if (!user.favoriteGames.contains(gameId)) {
+            val updatedUser = user.copy(favoriteGames = user.favoriteGames + gameId)
+            saveUser(updatedUser)
+        }
+    }
+
+    // Remover juego de favoritos
+    suspend fun removeFromFavorites(gameId: Int) {
+        val user = getCurrentUser() ?: return
+        val updatedUser = user.copy(favoriteGames = user.favoriteGames - gameId)
+        saveUser(updatedUser)
+    }
+
+    // Verificar si juego está en favoritos
+    suspend fun isInFavorites(gameId: Int): Boolean {
+        val user = getCurrentUser() ?: return false
+        return user.favoriteGames.contains(gameId)
+    }
+
+    // Obtener juegos favoritos
+    suspend fun getFavoriteGames(): List<Int> {
+        val user = getCurrentUser() ?: return emptyList()
+        return user.favoriteGames
+    }
+
+    suspend fun getFavoriteGameIds(): Set<Int> {
+        return getFavoriteGames().toSet()
+    }
 }

@@ -43,4 +43,11 @@ class HomeViewModel(
             _homeState.value = HomeState(user = null, isLoading = false)
         }
     }
+
+    fun resetTest() {
+        viewModelScope.launch {
+            userRepository.resetTest()
+            loadUserState() // Recargar el estado del usuario
+        }
+    }
 }

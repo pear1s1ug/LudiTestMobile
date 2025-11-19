@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.luditestmobilefinal.R
 import com.example.luditestmobilefinal.di.ViewModelFactory
+import com.example.luditestmobilefinal.ui.navigation.Routes
 import com.example.luditestmobilefinal.ui.state.AppState
 import com.example.luditestmobilefinal.ui.theme.*
 import kotlinx.coroutines.launch
@@ -53,6 +54,7 @@ fun HomeScreen(
 
     // Determinar si es invitado
     val isGuest = homeState.user?.email == null
+    val hasCompletedTest = homeState.user?.personalityType != null
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -65,7 +67,7 @@ fun HomeScreen(
                 },
                 onWishlistClick = { /* TODO: Navigate to wishlist */ },
                 onRecommendedClick = { /* TODO: Navigate to recommended games */ },
-                onAboutClick = { /* TODO: Navigate to about screen */ }, // ✅ NUEVO
+                onAboutClick = { navController.navigate("about") },
                 onAuthAction = {
                     scope.launch { drawerState.close() }
                     if (isGuest) {
@@ -122,22 +124,34 @@ fun HomeScreen(
 
                 Spacer(Modifier.height(32.dp))
 
-                // Motivational Card
-                MotivationalCard()
+                // Motivational Card - Mensaje dinámico según si completó el test
+                MotivationalCard(hasCompletedTest = hasCompletedTest)
 
                 Spacer(Modifier.height(32.dp))
 
-                // Animated Test Button
+                // Botón principal - SIEMPRE muestra "REALIZAR EL LUDITEST!"
                 AnimatedTestButton(
-                    hasCompletedTest = homeState.user?.personalityType != null,
-                    onTestClick = { /* TODO: Navigate to disclaimer/quiz */ }
+                    hasCompletedTest = hasCompletedTest,
+                    onTestClick = {
+                        if (hasCompletedTest) {
+                            // Si ya completó el test, mostrar diálogo de confirmación para reiniciar
+                            // Por ahora vamos directo al quiz para simplificar
+                            viewModel.resetTest()
+                            navController.navigate(Routes.QUIZ)
+                        } else {
+                            // Si no ha completado el test, ir al quiz normal
+                            navController.navigate(Routes.QUIZ)
+                        }
+                    }
                 )
 
                 Spacer(Modifier.height(16.dp))
 
-                // Test Status
-                if (homeState.user?.personalityType != null) {
-                    TestCompletedCard()
+                // Mensaje que invita a ver el perfil si completó el test
+                if (hasCompletedTest) {
+                    ProfileInviteCard(
+                        onProfileClick = { navController.navigate("profile") }
+                    )
                 }
 
                 // Guest Mode Indicator
@@ -361,7 +375,7 @@ fun WelcomeSection(userName: String?) {
 }
 
 @Composable
-fun MotivationalCard() {
+fun MotivationalCard(hasCompletedTest: Boolean = false) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -382,7 +396,11 @@ fun MotivationalCard() {
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                text = "Tu próximo juego favorito podría ser un lanzamiento de este año. ¿Te atreves a descubrirlo?",
+                text = if (hasCompletedTest) {
+                    "¿Quieres descubrir si tu personalidad gamer ha cambiado? ¡Haz el test nuevamente!"
+                } else {
+                    "Tu próximo juego favorito podría ser un lanzamiento de este año. ¿Te atreves a descubrirlo?"
+                },
                 fontSize = 16.sp,
                 color = Color.Black,
                 fontWeight = FontWeight.Medium,
@@ -431,7 +449,7 @@ fun AnimatedTestButton(
                 )
             }
             .background(
-                color = if (hasCompletedTest) SuccessGreen else DcNeonGreen,
+                color = if (hasCompletedTest) AccentCyan else DcNeonGreen,
                 shape = RoundedCornerShape(0.dp)
             )
             .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
@@ -439,7 +457,7 @@ fun AnimatedTestButton(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = if (hasCompletedTest) "VER MI RESULTADO" else "REALIZAR EL LUDITEST!",
+            text = "REALIZAR EL LUDITEST!",
             fontSize = 18.sp,
             fontWeight = FontWeight.Black,
             color = DcDarkPurple,
@@ -449,35 +467,6 @@ fun AnimatedTestButton(
     }
 }
 
-@Composable
-fun TestCompletedCard() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .shadow(
-                elevation = 6.dp,
-                shape = RoundedCornerShape(0.dp),
-                clip = false
-            )
-            .background(
-                color = SuccessGreen,
-                shape = RoundedCornerShape(0.dp)
-            )
-            .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "TEST COMPLETADO. VE A 'JUEGOS RECOMENDADOS' PARA VER TUS RESULTADOS.",
-            fontSize = 14.sp,
-            color = Color.Black,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
 
 @Composable
 fun GuestModeIndicator() {
@@ -529,5 +518,57 @@ fun DrawerButton(
             color = Color.White,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+@Composable
+fun ProfileInviteCard(onProfileClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .shadow(
+                elevation = 6.dp,
+                shape = RoundedCornerShape(0.dp),
+                clip = false
+            )
+            .background(
+                color = PrimaryPurple,
+                shape = RoundedCornerShape(0.dp)
+            )
+            .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+            .clickable(onClick = onProfileClick)
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "🎮 TEST COMPLETADO",
+                fontSize = 14.sp,
+                color = Color.White,
+                fontWeight = FontWeight.Black,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = "Ve a tu perfil para ver tus resultados",
+                fontSize = 12.sp,
+                color = TextSecondary,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "TOCA PARA VER PERFIL →",
+                fontSize = 10.sp,
+                color = AccentCyan,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }

@@ -15,6 +15,7 @@ object Routes {
     const val RESULT = "result/{personalityType}"
     const val RECOMMENDED_GAMES = "recommended_games"
     const val GAME_DETAIL = "game_detail/{gameId}"
+    const val ABOUT = "about"
 
     // User
     const val PROFILE = "profile"

@@ -11,6 +11,7 @@ data class User(
     val answerWeights: List<Map<Personality, Int>> = emptyList(),
     val answeredQuestions: List<Int> = emptyList(),
     val wishlist: List<Int> = emptyList(),
+    val favoriteGames: List<Int> = emptyList()
 )
 
 data class RegisteredUser(

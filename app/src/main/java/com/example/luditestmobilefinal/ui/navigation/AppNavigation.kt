@@ -1,16 +1,21 @@
-// ui/navigation/AppNavigation.kt
 package com.example.luditestmobilefinal.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.luditestmobilefinal.di.ViewModelFactory
+import com.example.luditestmobilefinal.ui.screens.about.AboutScreen
 import com.example.luditestmobilefinal.ui.screens.home.HomeScreen
 import com.example.luditestmobilefinal.ui.screens.login.LoginScreen
 import com.example.luditestmobilefinal.ui.screens.profile.ProfileScreen
+import com.example.luditestmobilefinal.ui.screens.quiz.QuizScreen
 import com.example.luditestmobilefinal.ui.screens.register.RegisterScreen
+import com.example.luditestmobilefinal.ui.screens.result.ResultScreen
 import com.example.luditestmobilefinal.ui.state.AppState
+import com.example.luditestmobilefinal.ui.theme.*
 
 @Composable
 fun AppNavigation(
@@ -54,62 +59,27 @@ fun AppNavigation(
             )
         }
 
-        /*
-
-
-        composable(Routes.DISCLAIMER) {
-            DisclaimerScreen(
-                navController = navController,
-                viewModelFactory = viewModelFactory
-            )
+        composable(Routes.ABOUT) {
+            AboutScreen(navController = navController)
         }
 
         composable(Routes.QUIZ) {
             QuizScreen(
                 navController = navController,
-                viewModelFactory = viewModelFactory
-            )
-        }
-
-        composable(Routes.QUIZ_TIEBREAKER) {
-            QuizTiebreakerScreen(
-                navController = navController,
-                viewModelFactory = viewModelFactory
+                viewModelFactory = viewModelFactory,
+                appState = appState
             )
         }
 
         composable(Routes.RESULT) { backStackEntry ->
-            val personalityType = backStackEntry.arguments?.getString("personalityType") ?: ""
+            val personalityType = backStackEntry.arguments?.getString("personalityType")
             ResultScreen(
                 navController = navController,
                 viewModelFactory = viewModelFactory,
+                appState = appState,
                 personalityType = personalityType
             )
         }
-
-        composable(Routes.RECOMMENDED_GAMES) {
-            RecommendedGamesScreen(
-                navController = navController,
-                viewModelFactory = viewModelFactory
-            )
-        }
-
-        composable(Routes.GAME_DETAIL) { backStackEntry ->
-            val gameId = backStackEntry.arguments?.getString("gameId")?.toIntOrNull() ?: 0
-            GameDetailScreen(
-                navController = navController,
-                viewModelFactory = viewModelFactory,
-                gameId = gameId
-            )
-        }
-
-        composable(Routes.WISHLIST) {
-            WishlistScreen(
-                navController = navController,
-                viewModelFactory = viewModelFactory
-            )
-        }
-        */
     }
 }
 

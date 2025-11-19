@@ -6483,6 +6483,23 @@ object VideogameData {
             imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4hxEj6KsApi_x1_VK_BjvbqEO5aVGAg2m6g&s",
             featured = false,
             releaseDate = "2025-10-31"
+        ),
+        Videogame(
+            id = 1561,
+            name = "DOOM: The Dark Ages",
+            genres = listOf(GameGenre.SHOOTER, GameGenre.ACTION),
+            platform = listOf(
+                GamePlatform.PC,
+                GamePlatform.PS5,
+                GamePlatform.XBOX_SERIES_X,
+                GamePlatform.XBOX_SERIES_S
+            ),
+            description = "Precursora medieval de los juegos DOOM modernos, donde el Slayer combate demonios en castillos, monta un dragón mecánico y pilota un mecha gigante en una guerra épica contra el infierno. Incluye nuevas armas como el Shield Saw y un intenso sistema de parry.",
+            rating = 0.0,
+            trailerUrl = "https://www.youtube.com/watch?v=4tk8lkmYGWQ",
+            imageUrl = "https://images.mweb.bethesda.net/_images/DOOM_TheDarkAges_Standard_Keyart.webp?fx=56&f=jpg&h=1042&w=1920&s=wQoXRqYis5PL6GG5eh7C3NJdCUQQN1BC0XlIuDofD7Q",
+            featured = false,
+            releaseDate = "2025-05-15"
         )
     )
 }
