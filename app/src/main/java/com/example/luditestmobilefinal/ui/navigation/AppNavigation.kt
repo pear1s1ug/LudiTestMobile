@@ -1,10 +1,13 @@
+// ui/navigation/AppNavigation.kt
 package com.example.luditestmobilefinal.ui.navigation
 
+import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.luditestmobilefinal.di.ViewModelFactory
-import com.example.luditestmobilefinal.ui.screens.*
+import com.example.luditestmobilefinal.ui.screens.login.LoginScreen
+import com.example.luditestmobilefinal.ui.screens.register.RegisterScreen
 import com.example.luditestmobilefinal.ui.state.AppState
 
 @Composable
@@ -17,7 +20,6 @@ fun AppNavigation(
         navController = navController,
         startDestination = determineStartDestination(appState)
     ) {
-        // Auth Screens
         composable(Routes.LOGIN) {
             LoginScreen(
                 navController = navController,
@@ -34,7 +36,7 @@ fun AppNavigation(
             )
         }
 
-        // Main Flow
+        /*
         composable(Routes.HOME) {
             HomeScreen(
                 navController = navController,
@@ -64,7 +66,6 @@ fun AppNavigation(
             )
         }
 
-        // Results
         composable(Routes.RESULT) { backStackEntry ->
             val personalityType = backStackEntry.arguments?.getString("personalityType") ?: ""
             ResultScreen(
@@ -74,7 +75,6 @@ fun AppNavigation(
             )
         }
 
-        // Games
         composable(Routes.RECOMMENDED_GAMES) {
             RecommendedGamesScreen(
                 navController = navController,
@@ -91,7 +91,6 @@ fun AppNavigation(
             )
         }
 
-        // User
         composable(Routes.PROFILE) {
             ProfileScreen(
                 navController = navController,
@@ -106,14 +105,21 @@ fun AppNavigation(
                 viewModelFactory = viewModelFactory
             )
         }
+        */
     }
 }
 
 // Función helper para determinar start destination
 private fun determineStartDestination(appState: AppState): String {
+    // Por ahora siempre va a LOGIN hasta que tengamos más pantallas
+    return Routes.LOGIN
+
+    /*
+    // DESCOMENTAR CUANDO TENGAS MÁS PANTALLAS:
     return when {
         !appState.isUserLoggedIn -> Routes.LOGIN
         !appState.isTestCompleted -> Routes.QUIZ
         else -> Routes.HOME
     }
+    */
 }

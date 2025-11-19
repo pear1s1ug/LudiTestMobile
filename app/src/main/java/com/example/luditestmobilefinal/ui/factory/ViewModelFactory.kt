@@ -1,14 +1,11 @@
+// di/ViewModelFactory.kt
 package com.example.luditestmobilefinal.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.luditestmobilefinal.data.repository.*
-import com.example.luditestmobilefinal.ui.screens.games.GamesViewModel
-import com.example.luditestmobilefinal.ui.screens.home.HomeViewModel
 import com.example.luditestmobilefinal.ui.screens.login.LoginViewModel
-import com.example.luditestmobilefinal.ui.screens.profile.ProfileViewModel
-import com.example.luditestmobilefinal.ui.screens.quiz.QuizViewModel
-import com.example.luditestmobilefinal.ui.screens.wishlist.WishlistViewModel
+import com.example.luditestmobilefinal.ui.screens.register.RegisterViewModel
 
 class ViewModelFactory(
     private val userRepository: UserRepository,
@@ -18,11 +15,11 @@ class ViewModelFactory(
 
     private val creators = mapOf<Class<out ViewModel>, () -> ViewModel>(
         LoginViewModel::class.java to { LoginViewModel(userRepository) },
-        HomeViewModel::class.java to { HomeViewModel(userRepository, videogameRepository) },
-        QuizViewModel::class.java to { QuizViewModel(userRepository, personalityRepository) },
-        ProfileViewModel::class.java to { ProfileViewModel(userRepository, personalityRepository) },
-        GamesViewModel::class.java to { GamesViewModel(videogameRepository, userRepository) },
-        WishlistViewModel::class.java to { WishlistViewModel(userRepository, videogameRepository) }
+        RegisterViewModel::class.java to { RegisterViewModel(userRepository) }
+        // Agregar más ViewModels aquí conforme los vayas creando:
+        // HomeViewModel::class.java to { HomeViewModel(userRepository, videogameRepository) },
+        // QuizViewModel::class.java to { QuizViewModel(userRepository, personalityRepository) },
+        // etc...
     )
 
     @Suppress("UNCHECKED_CAST")

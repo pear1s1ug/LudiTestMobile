@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.compose.animation.core.lint)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -73,4 +74,6 @@ dependencies {
     implementation(libs.favre.bcrypt)
     // Imágenes
     implementation(libs.coil.compose)
+    // Icons
+    implementation("androidx.compose.material:material-icons-extended:1.6.4")
 }
