@@ -17,7 +17,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -139,8 +138,7 @@ fun QuizScreen(
                     ) {
                         Text(
                             text = "CARGANDO PREGUNTAS...",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Black,
+                            style = MaterialTheme.typography.titleMedium,
                             color = TextSecondary
                         )
                     }
@@ -197,8 +195,7 @@ fun TiebreakerDialog(
                 ) {
                     Text(
                         text = "¡EMPATE! PREGUNTA DE DESEMPATE",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Black,
+                        style = MaterialTheme.typography.headlineMedium,
                         color = WarningOrange,
                         textAlign = TextAlign.Center
                     )
@@ -218,8 +215,7 @@ fun TiebreakerDialog(
                     ) {
                         Text(
                             text = q.text,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Black,
+                            style = MaterialTheme.typography.titleMedium,
                             color = Color.White,
                             textAlign = TextAlign.Center,
                             lineHeight = 24.sp
@@ -264,22 +260,19 @@ fun TiebreakerDialog(
                     ) {
                         Text(
                             text = if (isSubmitEnabled) "CONFIRMAR DESEMPATE" else "SELECCIONA UNA OPCIÓN",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Black,
+                            style = MaterialTheme.typography.labelLarge,
                             color = if (isSubmitEnabled) Color.Black else TextTertiary,
                             letterSpacing = 0.5.sp
                         )
                     }
                 } ?: run {
-                    // Si no hay pregunta de desempate
                     Box(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "Error cargando pregunta de desempate",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.bodyMedium,
                             color = ErrorRed,
                             textAlign = TextAlign.Center
                         )
@@ -296,8 +289,10 @@ fun TiebreakerAnswerOption(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val backgroundColor = if (isSelected) DcNeonGreen else CardDark
-    val textColor = if (isSelected) DcDarkPurple else TextPrimary
+    // COLORES VISIBLES Y CON CONTRASTE - ESTILO PIXELADO PERO CLARO
+    val backgroundColor = if (isSelected) DcNeonGreen else PrimaryPurple
+    val textColor = if (isSelected) DcDarkPurple else Color.White
+    val borderColor = if (isSelected) Color.Black else AccentCyan
 
     Box(
         modifier = Modifier
@@ -311,7 +306,7 @@ fun TiebreakerAnswerOption(
             .background(backgroundColor, RoundedCornerShape(0.dp))
             .border(
                 width = if (isSelected) 4.dp else 2.dp,
-                color = if (isSelected) Color.Black else CardBorder,
+                color = borderColor,
                 shape = RoundedCornerShape(0.dp)
             )
             .clickable { onClick() }
@@ -320,10 +315,8 @@ fun TiebreakerAnswerOption(
     ) {
         Text(
             text = text,
-            fontSize = 14.sp,
-            fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
+            style = MaterialTheme.typography.bodyMedium,
             color = textColor,
-            lineHeight = 18.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -345,8 +338,7 @@ fun ProgressSection(progress: Float, progressText: String) {
         ) {
             Text(
                 text = "PROGRESO: $progressText",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Black,
+                style = MaterialTheme.typography.labelLarge,
                 color = WarningOrange,
                 textAlign = TextAlign.Center
             )
@@ -358,7 +350,7 @@ fun ProgressSection(progress: Float, progressText: String) {
                 .fillMaxWidth()
                 .height(30.dp)
                 .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
-                .background(CardDark, RoundedCornerShape(0.dp))
+                .background(PrimaryPurple, RoundedCornerShape(0.dp)) // FONDO CON COLOR DE LA APP
                 .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
         ) {
             // Progress Fill
@@ -376,8 +368,7 @@ fun ProgressSection(progress: Float, progressText: String) {
             ) {
                 Text(
                     text = "${(progress * 100).toInt()}%",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Black,
+                    style = MaterialTheme.typography.labelMedium,
                     color = if (progress > 0.5f) Color.Black else Color.White
                 )
             }
@@ -408,8 +399,7 @@ fun QuestionSection(
         ) {
             Text(
                 text = question.text,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Black,
+                style = MaterialTheme.typography.titleLarge,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
                 lineHeight = 26.sp
@@ -418,7 +408,7 @@ fun QuestionSection(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Answers Section
+        // Answers Section - ALTERNATIVAS CLARAS Y VISIBLES
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -440,9 +430,10 @@ fun AnswerOption(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val backgroundColor = if (isSelected) DcNeonGreen else CardDark
-    val textColor = if (isSelected) DcDarkPurple else TextPrimary
-    val borderColor = if (isSelected) DcNeonGreen else CardBorder
+    // COLORES QUE SE VEN BIEN Y CAMBIAN AL SELECCIONAR - ESTILO PIXEL PERO VISIBLE
+    val backgroundColor = if (isSelected) DcNeonGreen else PrimaryPurple
+    val textColor = if (isSelected) DcDarkPurple else Color.White
+    val borderColor = if (isSelected) Color.Black else AccentCyan
 
     Box(
         modifier = Modifier
@@ -456,7 +447,7 @@ fun AnswerOption(
             .background(backgroundColor, RoundedCornerShape(0.dp))
             .border(
                 width = if (isSelected) 4.dp else 3.dp,
-                color = if (isSelected) Color.Black else borderColor,
+                color = borderColor,
                 shape = RoundedCornerShape(0.dp)
             )
             .clickable { onClick() }
@@ -465,10 +456,8 @@ fun AnswerOption(
     ) {
         Text(
             text = text,
-            fontSize = 16.sp,
-            fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
+            style = MaterialTheme.typography.bodyLarge,
             color = textColor,
-            lineHeight = 20.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -483,7 +472,6 @@ fun SubmitButton(
 ) {
     val context = LocalContext.current
 
-    // Función para reproducir sonido de confirmación
     fun playSubmitSound() {
         val mediaPlayer = MediaPlayer.create(context, R.raw.newnotification)
         mediaPlayer?.setOnCompletionListener {
@@ -501,7 +489,7 @@ fun SubmitButton(
                 clip = false
             )
             .background(
-                color = if (isEnabled) SuccessGreen else CardDark,
+                color = if (isEnabled) SuccessGreen else PrimaryPurple, // COLOR DE LA APP CUANDO NO HABILITADO
                 shape = RoundedCornerShape(0.dp)
             )
             .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
@@ -516,11 +504,9 @@ fun SubmitButton(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = if (isEnabled) "CONFIRMAR" else "SELECCIONA OPCIÓN", // Texto más corto
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Black,
-            color = if (isEnabled) Color.Black else TextTertiary,
-            letterSpacing = 0.5.sp,
+            text = if (isEnabled) "CONFIRMAR" else "SELECCIONA OPCIÓN",
+            style = MaterialTheme.typography.labelLarge,
+            color = if (isEnabled) Color.Black else Color.White, // TEXTO BLANCO CUANDO NO HABILITADO
             textAlign = TextAlign.Center,
             maxLines = 1
         )
@@ -534,9 +520,8 @@ fun PreviousButton(
 ) {
     val context = LocalContext.current
 
-    // Función para reproducir sonido de retroceso
     fun playBackSound() {
-        val mediaPlayer = MediaPlayer.create(context, R.raw.lowbitsharp) // O el sonido que prefieras
+        val mediaPlayer = MediaPlayer.create(context, R.raw.lowbitsharp)
         mediaPlayer?.setOnCompletionListener {
             it.release()
         }
@@ -567,10 +552,8 @@ fun PreviousButton(
             )
             Text(
                 text = "ANTERIOR",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Black,
-                color = Color.Black,
-                letterSpacing = 0.5.sp
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.Black
             )
         }
     }

@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
@@ -13,10 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.luditestmobilefinal.ui.navigation.Routes
@@ -39,138 +39,114 @@ fun GlobalDrawerContent(
             .width(280.dp)
             .background(WarningOrange)
             .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
-            .padding(24.dp),
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.spacedBy(12.dp) // Espacio uniforme entre TODOS los elementos
     ) {
         // Drawer Header
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 32.dp)
-        ) {
-            Text(
-                "MENÚ PRINCIPAL",
-                fontSize = 24.sp,
-                color = Color.Black,
-                fontWeight = FontWeight.Black,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+        Text(
+            " ",
+            style = MaterialTheme.typography.titleLarge,
+            color = Color.Black,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         // User Info
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 32.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text(
                 "¡Hola, ${user?.name ?: "Gamer"}!",
-                fontSize = 18.sp,
+                style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
-                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(4.dp))
 
             Text(
                 text = if (isGuest) "Modo Invitado" else "Cuenta Registrada",
-                fontSize = 12.sp,
+                style = MaterialTheme.typography.labelSmall,
                 color = DcDarkPurple,
-                fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
             )
         }
 
-        // Drawer Items
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Botón de Home (solo si no estamos en Home)
-            if (currentRoute != "home") {
-                DrawerButton(
-                    text = "Inicio",
-                    icon = Icons.Default.Home,
-                    onClick = {
-                        if (currentRoute == "quiz") {
-                            // Mostrar advertencia si estamos en el quiz
-                            showQuizWarningDialog = true
-                        } else {
-                            onCloseDrawer()
-                            navController.navigate("home") {
-                                popUpTo("home") { inclusive = true }
-                            }
+        // Drawer Items - TODOS JUNTOS
+        if (currentRoute != "home") {
+            DrawerButton(
+                text = "Inicio",
+                icon = Icons.Default.Home,
+                onClick = {
+                    if (currentRoute == "quiz") {
+                        showQuizWarningDialog = true
+                    } else {
+                        onCloseDrawer()
+                        navController.navigate("home") {
+                            popUpTo("home") { inclusive = true }
                         }
-                    }
-                )
-            }
-
-            DrawerButton(
-                text = "Perfil de Usuario",
-                onClick = {
-                    if (currentRoute == "quiz") {
-                        // Mostrar advertencia si estamos en el quiz
-                        showQuizWarningDialog = true
-                    } else {
-                        onCloseDrawer()
-                        navController.navigate("profile")
-                    }
-                }
-            )
-
-            DrawerButton(
-                text = "Mi Wishlist",
-                onClick = {
-                    if (currentRoute == "quiz") {
-                        // Mostrar advertencia si estamos en el quiz
-                        showQuizWarningDialog = true
-                    } else {
-                        onCloseDrawer()
-                        navController.navigate("wishlist")
-                    }
-                }
-            )
-
-            DrawerButton(
-                text = "Juegos Recomendados",
-                onClick = {
-                    if (currentRoute == "quiz") {
-                        // Mostrar advertencia si estamos en el quiz
-                        showQuizWarningDialog = true
-                    } else {
-                        onCloseDrawer()
-                        navController.navigate("recommended_games")
-                    }
-                }
-            )
-
-            DrawerButton(
-                text = "Sobre LudiTest",
-                onClick = {
-                    if (currentRoute == "quiz") {
-                        // Mostrar advertencia si estamos en el quiz
-                        showQuizWarningDialog = true
-                    } else {
-                        onCloseDrawer()
-                        navController.navigate("about")
                     }
                 }
             )
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        DrawerButton(
+            text = "Perfil de Usuario",
+            onClick = {
+                if (currentRoute == "quiz") {
+                    showQuizWarningDialog = true
+                } else {
+                    onCloseDrawer()
+                    navController.navigate("profile")
+                }
+            }
+        )
 
-        // Auth Button
+        DrawerButton(
+            text = "Mi Wishlist",
+            onClick = {
+                if (currentRoute == "quiz") {
+                    showQuizWarningDialog = true
+                } else {
+                    onCloseDrawer()
+                    navController.navigate("wishlist")
+                }
+            }
+        )
+
+        DrawerButton(
+            text = "Juegos Recomendados",
+            onClick = {
+                if (currentRoute == "quiz") {
+                    showQuizWarningDialog = true
+                } else {
+                    onCloseDrawer()
+                    navController.navigate("recommended_games")
+                }
+            }
+        )
+
+        DrawerButton(
+            text = "Sobre LudiTest",
+            onClick = {
+                if (currentRoute == "quiz") {
+                    showQuizWarningDialog = true
+                } else {
+                    onCloseDrawer()
+                    navController.navigate("about")
+                }
+            }
+        )
+
+        // Auth Button - JUSTO DESPUÉS del último botón, sin espacios extra
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(50.dp)
+                .height(44.dp)
                 .shadow(
-                    elevation = 8.dp,
+                    elevation = 4.dp,
                     shape = RoundedCornerShape(0.dp),
                     clip = false
                 )
@@ -181,7 +157,6 @@ fun GlobalDrawerContent(
                 .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
                 .clickable {
                     if (currentRoute == "quiz") {
-                        // Mostrar advertencia si estamos en el quiz
                         showQuizWarningDialog = true
                     } else {
                         onCloseDrawer()
@@ -196,10 +171,8 @@ fun GlobalDrawerContent(
         ) {
             Text(
                 text = if (isGuest) "INICIAR SESIÓN" else "CERRAR SESIÓN",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Black,
-                color = Color.White,
-                letterSpacing = 0.5.sp
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.White
             )
         }
     }
@@ -244,14 +217,13 @@ fun QuizExitWarningDialog(
                 // Icono de advertencia
                 Text(
                     text = "⚠️",
-                    fontSize = 48.sp
+                    style = MaterialTheme.typography.displayMedium 
                 )
 
                 // Título
                 Text(
                     text = "¿SALIR DEL QUIZ?",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Black,
+                    style = MaterialTheme.typography.headlineMedium, 
                     color = Color.White,
                     textAlign = TextAlign.Center
                 )
@@ -259,11 +231,9 @@ fun QuizExitWarningDialog(
                 // Mensaje
                 Text(
                     text = "Perderás todo el progreso del quiz si sales ahora. Are you sure?",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyMedium, 
                     color = Color.White,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 20.sp
+                    textAlign = TextAlign.Center
                 )
 
                 // Botones
@@ -284,8 +254,7 @@ fun QuizExitWarningDialog(
                     ) {
                         Text(
                             text = "CANCELAR",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Black,
+                            style = MaterialTheme.typography.labelLarge, 
                             color = Color.White
                         )
                     }
@@ -303,8 +272,7 @@ fun QuizExitWarningDialog(
                     ) {
                         Text(
                             text = "SALIR",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Black,
+                            style = MaterialTheme.typography.labelLarge, 
                             color = Color.Black
                         )
                     }
@@ -313,6 +281,8 @@ fun QuizExitWarningDialog(
         }
     }
 }
+
+
 
 @Composable
 fun DrawerButton(
@@ -323,10 +293,9 @@ fun DrawerButton(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .padding(vertical = 6.dp)
+            .height(44.dp)
             .shadow(
-                elevation = 6.dp,
+                elevation = 3.dp,
                 shape = RoundedCornerShape(0.dp),
                 clip = false
             )
@@ -344,13 +313,12 @@ fun DrawerButton(
                     imageVector = it,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(18.dp)
                 )
             }
             Text(
                 text,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyMedium,
                 color = Color.White,
                 textAlign = TextAlign.Center
             )
