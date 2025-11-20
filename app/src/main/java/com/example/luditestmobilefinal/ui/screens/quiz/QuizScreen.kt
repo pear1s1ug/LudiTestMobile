@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import com.example.luditestmobilefinal.R
@@ -40,7 +42,6 @@ fun QuizScreen(
     // Efecto principal para navegar cuando el test esté completo
     LaunchedEffect(quizState.isComplete, quizState.finalPersonality) {
         if (quizState.isComplete && quizState.finalPersonality != null) {
-            // Pequeño delay para mejor UX
             kotlinx.coroutines.delay(500)
             quizState.finalPersonality?.let { personality ->
                 navController.navigate("result/${personality.name}") {
@@ -52,9 +53,7 @@ fun QuizScreen(
 
     // Efecto para manejar empates sin pregunta de desempate
     LaunchedEffect(quizState.hasTie, quizState.showTiebreaker, quizState.tiebreakerQuestion) {
-        // Si hay empate pero no hay pregunta de desempate disponible
         if (quizState.hasTie && !quizState.showTiebreaker && quizState.tiebreakerQuestion == null) {
-            // Forzar resolución del empate seleccionando la primera personalidad empatada
             val tiedPersonalities = quizState.tiedPersonalities
             if (tiedPersonalities.isNotEmpty()) {
                 val selectedPersonality = tiedPersonalities.first()
@@ -76,62 +75,46 @@ fun QuizScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
+                    .padding(16.dp), // Reducir padding general
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Progress Section
+                // Progress Section - Más compacta
                 ProgressSection(
                     progress = viewModel.getProgress(),
                     progressText = viewModel.getProgressText()
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(16.dp)) // Reducir espacio
 
-                // Question Section
+                // Question Section con scroll si es necesario
                 val currentQuestion = viewModel.getCurrentQuestion()
                 if (currentQuestion != null) {
-                    QuestionSection(
-                        question = currentQuestion,
-                        selectedAnswerIndex = quizState.selectedAnswerIndex,
-                        onAnswerSelected = { index ->
-                            viewModel.selectAnswer(index)
-                        }
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        QuestionSection(
+                            question = currentQuestion,
+                            selectedAnswerIndex = quizState.selectedAnswerIndex,
+                            onAnswerSelected = { index ->
+                                viewModel.selectAnswer(index)
+                            }
+                        )
 
-                    Spacer(modifier = Modifier.weight(1f))
+                        // Espacio flexible que empuja los botones hacia abajo
+                        Spacer(modifier = Modifier.weight(1f))
 
-                    // BOTONES - OPCIÓN 2: Botón centrado en primera pregunta
-                    if (viewModel.canGoToPrevious()) {
-                        // Dos botones cuando no es la primera pregunta
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            PreviousButton(
-                                onClick = { viewModel.goToPreviousQuestion() },
-                                modifier = Modifier.weight(1f)
-                            )
-                            SubmitButton(
-                                isEnabled = quizState.selectedAnswerIndex != null,
-                                onClick = { viewModel.submitAnswer() },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                    } else {
-                        // Un botón centrado cuando es la primera pregunta
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            SubmitButton(
-                                isEnabled = quizState.selectedAnswerIndex != null,
-                                onClick = { viewModel.submitAnswer() },
-                                modifier = Modifier.width(200.dp) // Mismo ancho que los botones individuales
-                            )
-                        }
+                        // BOTONES - Versión mejorada para móviles
+                        NavigationButtons(
+                            canGoToPrevious = viewModel.canGoToPrevious(),
+                            isAnswerSelected = quizState.selectedAnswerIndex != null,
+                            onPrevious = { viewModel.goToPreviousQuestion() },
+                            onSubmit = { viewModel.submitAnswer() }
+                        )
                     }
                 } else {
-                    // Loading state
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -329,46 +312,38 @@ fun ProgressSection(progress: Float, progressText: String) {
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Progress Text
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "PROGRESO: $progressText",
-                style = MaterialTheme.typography.labelLarge,
-                color = WarningOrange,
-                textAlign = TextAlign.Center
-            )
-        }
+        // Progress Text más compacto
+        Text(
+            text = "PROGRESO: $progressText",
+            style = MaterialTheme.typography.labelMedium, // Tamaño más pequeño
+            color = WarningOrange,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
 
-        // Progress Bar Container
+        // Progress Bar más compacta
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(30.dp)
+                .height(24.dp) // Reducir altura
                 .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
-                .background(PrimaryPurple, RoundedCornerShape(0.dp)) // FONDO CON COLOR DE LA APP
+                .background(PrimaryPurple, RoundedCornerShape(0.dp))
                 .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
         ) {
-            // Progress Fill
             Box(
                 modifier = Modifier
                     .fillMaxWidth(progress)
-                    .height(30.dp)
+                    .height(24.dp)
                     .background(DcNeonGreen, RoundedCornerShape(0.dp))
             )
 
-            // Progress Text Overlay
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "${(progress * 100).toInt()}%",
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelSmall, // Texto más pequeño
                     color = if (progress > 0.5f) Color.Black else Color.White
                 )
             }
@@ -380,38 +355,40 @@ fun ProgressSection(progress: Float, progressText: String) {
 fun QuestionSection(
     question: com.example.luditestmobilefinal.data.model.Question,
     selectedAnswerIndex: Int?,
-    onAnswerSelected: (Int) -> Unit,
-    isPreviouslyAnswered: Boolean = false
+    onAnswerSelected: (Int) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()), // Permitir scroll si es necesario
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Question Card
+        // Question Card más compacta
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(8.dp, RoundedCornerShape(0.dp), clip = false)
+                .shadow(6.dp, RoundedCornerShape(0.dp), clip = false)
                 .background(WarningOrange, RoundedCornerShape(0.dp))
-                .border(4.dp, Color.Black, RoundedCornerShape(0.dp))
-                .padding(24.dp),
+                .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
+                .padding(16.dp), // Reducir padding
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = question.text,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium, // Tamaño más pequeño
                 color = Color.Black,
                 textAlign = TextAlign.Center,
-                lineHeight = 26.sp
+                lineHeight = 22.sp,
+                fontSize = 16.sp // Tamaño de fuente reducido
             )
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Answers Section - ALTERNATIVAS CLARAS Y VISIBLES
+        // Answers Section con opciones más compactas
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             question.options.forEachIndexed { index, answer ->
                 AnswerOption(
@@ -430,7 +407,6 @@ fun AnswerOption(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    // COLORES QUE SE VEN BIEN Y CAMBIAN AL SELECCIONAR - ESTILO PIXEL PERO VISIBLE
     val backgroundColor = if (isSelected) DcNeonGreen else PrimaryPurple
     val textColor = if (isSelected) DcDarkPurple else Color.White
     val borderColor = if (isSelected) Color.Black else AccentCyan
@@ -439,31 +415,30 @@ fun AnswerOption(
         modifier = Modifier
             .fillMaxWidth()
             .shadow(
-                elevation = if (isSelected) 12.dp else 6.dp,
+                elevation = if (isSelected) 8.dp else 4.dp,
                 shape = RoundedCornerShape(0.dp),
                 clip = false
             )
-            .rotate(if (isSelected) 1f else 0f)
             .background(backgroundColor, RoundedCornerShape(0.dp))
             .border(
-                width = if (isSelected) 4.dp else 3.dp,
+                width = if (isSelected) 3.dp else 2.dp,
                 color = borderColor,
                 shape = RoundedCornerShape(0.dp)
             )
             .clickable { onClick() }
-            .padding(20.dp),
+            .padding(12.dp), // Padding reducido
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp), // Fuente más pequeña
             color = textColor,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            lineHeight = 18.sp // Interlineado reducido
         )
     }
 }
-
 @Composable
 fun SubmitButton(
     isEnabled: Boolean,
@@ -482,17 +457,17 @@ fun SubmitButton(
 
     Box(
         modifier = modifier
-            .height(70.dp)
+            .height(56.dp) // Altura reducida
             .shadow(
-                elevation = if (isEnabled) 12.dp else 6.dp,
+                elevation = if (isEnabled) 8.dp else 4.dp,
                 shape = RoundedCornerShape(0.dp),
                 clip = false
             )
             .background(
-                color = if (isEnabled) SuccessGreen else PrimaryPurple, // COLOR DE LA APP CUANDO NO HABILITADO
+                color = if (isEnabled) SuccessGreen else PrimaryPurple,
                 shape = RoundedCornerShape(0.dp)
             )
-            .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
+            .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
             .clickable(
                 enabled = isEnabled
             ) {
@@ -505,8 +480,8 @@ fun SubmitButton(
     ) {
         Text(
             text = if (isEnabled) "CONFIRMAR" else "SELECCIONA OPCIÓN",
-            style = MaterialTheme.typography.labelLarge,
-            color = if (isEnabled) Color.Black else Color.White, // TEXTO BLANCO CUANDO NO HABILITADO
+            style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp), // Texto más pequeño
+            color = if (isEnabled) Color.Black else Color.White,
             textAlign = TextAlign.Center,
             maxLines = 1
         )
@@ -530,10 +505,10 @@ fun PreviousButton(
 
     Box(
         modifier = modifier
-            .height(70.dp)
-            .shadow(6.dp, RoundedCornerShape(0.dp), clip = false)
+            .height(56.dp) // Altura reducida
+            .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
             .background(WarningOrange, RoundedCornerShape(0.dp))
-            .border(3.dp, Color.Black, RoundedCornerShape(0.dp))
+            .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
             .clickable {
                 playBackSound()
                 onClick()
@@ -542,19 +517,53 @@ fun PreviousButton(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Volver a pregunta anterior",
                 tint = Color.Black,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(18.dp) // Icono más pequeño
             )
             Text(
                 text = "ANTERIOR",
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.labelMedium.copy(fontSize = 14.sp), // Texto más pequeño
                 color = Color.Black
             )
         }
+    }
+}
+
+@Composable
+fun NavigationButtons(
+    canGoToPrevious: Boolean,
+    isAnswerSelected: Boolean,
+    onPrevious: () -> Unit,
+    onSubmit: () -> Unit
+) {
+    // En móviles pequeños, usar columna para botones
+    if (canGoToPrevious) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            PreviousButton(
+                onClick = onPrevious,
+                modifier = Modifier.weight(1f)
+            )
+            SubmitButton(
+                isEnabled = isAnswerSelected,
+                onClick = onSubmit,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    } else {
+        SubmitButton(
+            isEnabled = isAnswerSelected,
+            onClick = onSubmit,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp) // Altura fija consistente
+        )
     }
 }
