@@ -231,7 +231,6 @@ fun WishlistGameCard(
             GameCard(
                 game = game,
                 onViewDetails = onViewDetails,
-                onWishlistToggle = null // No mostrar botón de wishlist aquí ya que tenemos nuestro propio botón de remover
             )
 
             // Fila de botones: Detalles y Remover

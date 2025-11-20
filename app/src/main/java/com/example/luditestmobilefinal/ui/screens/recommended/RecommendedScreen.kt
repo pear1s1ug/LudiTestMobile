@@ -298,11 +298,10 @@ fun RecommendedScreen(
                             }
                         }
 
+
                         items(uiState.filteredGames) { game ->
                             GameCard(
                                 game = game,
-                                isInWishlist = viewModel.isInWishlist(game.id),
-                                onWishlistToggle = { viewModel.toggleWishlist(game.id) },
                                 onViewDetails = {
                                     navController.navigate(Routes.gameDetail(game.id))
                                 }
@@ -553,8 +552,6 @@ fun <T> FilterChipSection(
 @Composable
 fun GameCard(
     game: com.example.luditestmobilefinal.data.model.Videogame,
-    isInWishlist: Boolean = false,
-    onWishlistToggle: (() -> Unit)? = null,
     onViewDetails: (() -> Unit)? = null
 ) {
     Box(
@@ -630,95 +627,34 @@ fun GameCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Fila de botones - SOLO DETALLES Y WISHLIST
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Botón de detalles
-                onViewDetails?.let { details ->
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(50.dp)
-                            .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
-                            .background(PrimaryPurple, RoundedCornerShape(0.dp))
-                            .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
-                            .clickable { details() },
-                        contentAlignment = Alignment.Center
+            // Botón de detalles - AHORA OCUPA TODO EL ANCHO
+            onViewDetails?.let { details ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .shadow(4.dp, RoundedCornerShape(0.dp), clip = false)
+                        .background(PrimaryPurple, RoundedCornerShape(0.dp))
+                        .border(2.dp, Color.Black, RoundedCornerShape(0.dp))
+                        .clickable { details() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = "Ver detalles",
-                                tint = Color.White,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Text(
-                                text = "DETALLES",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color.White
-                            )
-                        }
-                    }
-                }
-
-                // Botón de wishlist
-                onWishlistToggle?.let { toggle ->
-                    var isPressed by remember { mutableStateOf(false) }
-
-                    LaunchedEffect(isPressed) {
-                        if (isPressed) {
-                            delay(150)
-                            isPressed = false
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(50.dp)
-                            .shadow(
-                                elevation = if (isPressed) 2.dp else 4.dp,
-                                shape = RoundedCornerShape(0.dp),
-                                clip = false
-                            )
-                            .background(
-                                if (isInWishlist) ErrorRed else SuccessGreen,
-                                shape = RoundedCornerShape(0.dp)
-                            )
-                            .border(
-                                width = if (isPressed) 1.dp else 2.dp,
-                                color = Color.Black,
-                                shape = RoundedCornerShape(0.dp)
-                            )
-                            .clickable {
-                                isPressed = true
-                                toggle()
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Favorite,
-                                contentDescription = if (isInWishlist) "Remover de wishlist" else "Agregar a wishlist",
-                                tint = Color.White,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Text(
-                                text = if (isInWishlist) "GUARDADO" else "GUARDAR",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color.White
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Ver detalles",
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = "VER DETALLES",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White
+                        )
                     }
                 }
             }
